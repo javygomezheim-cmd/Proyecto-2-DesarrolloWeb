@@ -5,6 +5,7 @@ import ListaActividadesPage from "./pages/ListaActividadesPage";
 import DetalleActividadPage from "./pages/DetalleActividadPage";
 import NuevaActividadPage from "./pages/NuevaActividadPage";
 import AsignaturasPage from "./pages/AsignaturasPage";
+import Sidebar from "./components/Sidebar";
 
 export default function App() {
   const [vista, setVista] = useState("lista");
@@ -50,14 +51,11 @@ export default function App() {
     setAsignaturas([...asignaturas, { ...datos, id: Date.now() }]);
   }
 
-  return (
-    <div>
-      <nav>
-        <button onClick={() => navegar("lista")}>Actividades</button>
-        <button onClick={() => navegar("asignaturas")}>Asignaturas</button>
-        <button onClick={() => navegar("nueva")}>Nueva actividad</button>
-      </nav>
+return (
+  <div className="d-flex min-vh-100">
+    <Sidebar vista={vista} navegar={navegar} />
 
+    <main className="flex-grow-1">
       {vista === "lista" && (
         <ListaActividadesPage
           actividades={actividades}
@@ -65,6 +63,7 @@ export default function App() {
           navegar={navegar}
         />
       )}
+
       {vista === "detalle" && (
         <DetalleActividadPage
           actividadId={actividadId}
@@ -75,6 +74,7 @@ export default function App() {
           navegar={navegar}
         />
       )}
+
       {vista === "nueva" && (
         <NuevaActividadPage
           actividadId={actividadId}
@@ -85,6 +85,7 @@ export default function App() {
           navegar={navegar}
         />
       )}
+
       {vista === "asignaturas" && (
         <AsignaturasPage
           asignaturas={asignaturas}
@@ -93,6 +94,7 @@ export default function App() {
           navegar={navegar}
         />
       )}
-    </div>
-  );
+    </main>
+  </div>
+);
 }
