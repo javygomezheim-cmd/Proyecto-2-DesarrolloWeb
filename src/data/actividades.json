@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "titulo": "Proyecto Final de Álgebra",
+    "asignaturaId": 1,
+    "fechaLimite": "2026-10-18T23:59",
+    "descripcion": "Programar y documentar un software en Python para resolver sistemas de ecuaciones lineales mediante el método de eliminación de Gauss-Jordan.",
+    "prioridad": "alta",
+    "estado": "en-progreso",
+    "subtareas": [
+      { "id": 1, "texto": "Escribir algoritmos básicos de matrices", "hecha": true },
+      { "id": 2, "texto": "Implementar método Gauss-Jordan en código", "hecha": false },
+      { "id": 3, "texto": "Realizar pruebas unitarias con matrices de 3×3", "hecha": false },
+      { "id": 4, "texto": "Escribir reporte PDF y conclusiones", "hecha": false }
+    ]
+  },
+  {
+    "id": 2,
+    "titulo": "Informe de Laboratorio de Óptica",
+    "asignaturaId": 2,
+    "fechaLimite": "2026-10-20T14:00",
+    "descripcion": "Análisis de los resultados del experimento de refracción de la luz y cálculo del índice de refracción.",
+    "prioridad": "media",
+    "estado": "pendiente",
+    "subtareas": []
+  },
+  {
+    "id": 3,
+    "titulo": "Lab de Química Orgánica",
+    "asignaturaId": 3,
+    "fechaLimite": "2026-10-22T11:30",
+    "descripcion": "Informe completo sobre la destilación de compuestos orgánicos e hidrocarburos.",
+    "prioridad": "alta",
+    "estado": "pendiente",
+    "subtareas": []
+  },
+  {
+    "id": 4,
+    "titulo": "Lectura de Macroeconomía",
+    "asignaturaId": 4,
+    "fechaLimite": "2026-10-25T09:00",
+    "descripcion": "Leer capítulo 4 sobre inflación y resumir los conceptos clave.",
+    "prioridad": "baja",
+    "estado": "pendiente",
+    "subtareas": []
+  },
+  {
+    "id": 5,
+    "titulo": "Presentación de Historia",
+    "asignaturaId": 5,
+    "fechaLimite": "2026-10-28T16:00",
+    "descripcion": "Crear láminas sobre el impacto cultural de la Revolución.",
+    "prioridad": "media",
+    "estado": "pendiente",
+    "subtareas": []
+  }
+]

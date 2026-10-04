@@ -1,0 +1,7 @@
+[
+  { "id": 1, "nombre": "Matemáticas", "profesor": "Armando González", "color": "#2563eb" },
+  { "id": 2, "nombre": "Física", "profesor": "Cristián Belmonte", "color": "#d97706" },
+  { "id": 3, "nombre": "Química", "profesor": "Rodrigo Varela", "color": "#ef4444" },
+  { "id": 4, "nombre": "Economía", "profesor": "Felipe Rojas", "color": "#059669" },
+  { "id": 5, "nombre": "Historia", "profesor": "Matías Soto", "color": "#8b5cf6" }
+]
