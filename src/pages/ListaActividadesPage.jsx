@@ -147,10 +147,10 @@ export default function ListaActividadesPage({
 
       </div>
 
-      <div className="d-flex gap-4 align-items-start">
+      <div className="actividades-contenido d-flex gap-4 align-items-start w-100">
 
         <div
-          className="border rounded p-3"
+          className="actividades-lista border rounded p-3 flex-grow-1"
           style={{
             width: "calc(100% - 240px)",
             height: "550px",
@@ -282,12 +282,8 @@ export default function ListaActividadesPage({
           </div>
         </div>
 
-        <div
-          style={{
-            width: "220px",
-            flexShrink: 0,
-          }}
-        >
+        <div className="actividades-estadisticas">
+
           <div className="card shadow-sm border-0">
             <div className="card-body">
               <h5 className="fw-bold mb-1">
