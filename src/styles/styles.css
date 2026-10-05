@@ -1,3 +1,8 @@
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
 .filtro-boton {
   border: 1px solid #e5e7eb;
   color: #0d6efd;
@@ -7,6 +12,7 @@
   border-color: #d1d5db;
   color: #0d6efd;
 }
+
 .prioridad-urgente {
   background-color: #fee2e2;
   color: #b91c1c;

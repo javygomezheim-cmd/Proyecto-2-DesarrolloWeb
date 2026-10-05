@@ -93,14 +93,14 @@ export default function App() {
   }
 
   return (
-    <div className="d-flex min-vh-100">
+    <div className="d-flex flex-column flex-md-row min-vh-100">
       <Sidebar
         vista={vista}
         navegar={navegar}
         abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
       />
 
-      <main className="flex-grow-1">
+      <main className="main-content">
         {vista === "lista" && (
           <ListaActividadesPage
             actividades={actividades}
