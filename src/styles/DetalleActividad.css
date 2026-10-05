@@ -1,0 +1,7 @@
+.badge.badge-alta { background-color: #fee2e2; color: #dc2626; }
+.badge.badge-media { background-color: #fef3c7; color: #d97706; }
+.badge.badge-baja { background-color: #d1fae5; color: #059669; }
+
+.badge.badge-pendiente { background-color: #e5e7eb; color: #4b5563; }
+.badge.badge-progreso { background-color: #dbeafe; color: #2563eb; }
+.badge.badge-completada { background-color: #d1fae5; color: #059669; }
