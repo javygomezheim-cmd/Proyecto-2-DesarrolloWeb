@@ -1,3 +1,8 @@
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
 .filtro-boton {
   border: 1px solid #e5e7eb;
   color: #0d6efd;
@@ -30,13 +35,18 @@
 
 .sidebar {
   width: 260px;
+  min-width: 260px;
+  max-width: 260px;
   min-height: 100vh;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 @media (max-width: 767px) {
   .sidebar {
     width: 100%;
+    min-width: 100%;
+    max-width: 100%;
     min-height: auto;
   }
 

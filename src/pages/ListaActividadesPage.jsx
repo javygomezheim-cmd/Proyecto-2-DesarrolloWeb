@@ -60,7 +60,7 @@ export default function ListaActividadesPage({
   });
 
   return (
-    <div className="row align-items-start mb-4 px-3 pt-3">
+    <div className="row align-items-start mb-4 px-3 pt-3 w-100 m-0">
       <div className="col-12 col-md-7">
         <h2 className="fw-bold mb-1">Mis Actividades</h2>
 
@@ -147,15 +147,16 @@ export default function ListaActividadesPage({
 
       </div>
 
-      <div className="d-flex gap-4 align-items-start">
+      <div className="d-flex gap-4 align-items-start w-100">
 
         <div
-          className="border rounded p-3"
+          className="border rounded p-3 flex-grow-1"
           style={{
-            width: "calc(100% - 240px)",
+            minWidth: 0,
             height: "550px",
           }}
         >
+
           <div
             className="d-flex flex-column align-items-center gap-3"
             style={{

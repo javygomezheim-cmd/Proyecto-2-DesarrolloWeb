@@ -100,7 +100,7 @@ export default function App() {
         abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
       />
 
-      <main className="flex-grow-1">
+      <main className="main-content">
         {vista === "lista" && (
           <ListaActividadesPage
             actividades={actividades}
