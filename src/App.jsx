@@ -7,6 +7,7 @@ import NuevaActividadPage from "./pages/NuevaActividadPage";
 import AsignaturasPage from "./pages/AsignaturasPage";
 import Sidebar from "./components/Sidebar";
 import AsignaturaModal from "./components/AsignaturaModal";
+import CalendarioPage from "./pages/Calendariopage.jsx";
 
 const STORAGE_ACTIVIDADES = "actividades";
 const STORAGE_ASIGNATURAS = "asignaturas";
@@ -97,7 +98,7 @@ export default function App() {
         vista={vista}
         navegar={navegar}
         abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
-      z/>
+      />
 
       <main className="flex-grow-1">
         {vista === "lista" && (
@@ -139,6 +140,8 @@ export default function App() {
             navegar={navegar}
           />
         )}
+
+        {vista === "calendario" && <CalendarioPage actividades={actividades} />}
       </main>
 
       {/* Modal global accesible desde cualquier botón */}
