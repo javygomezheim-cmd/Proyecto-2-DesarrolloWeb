@@ -88,7 +88,7 @@ export default function AsignaturaCard({
             <button
               className="btn btn-link p-0 text-primary text-decoration-none"
               style={{ fontSize: "0.9rem" }}
-              onClick={() => navegar && navegar("actividades", asignatura.id)}
+              onClick={() => navegar && navegar("lista", asignatura.id)}
             >
               📚 {cantidad} {cantidad === 1 ? "actividad" : "actividades"}
             </button>

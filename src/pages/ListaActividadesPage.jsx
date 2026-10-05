@@ -3,16 +3,20 @@ import { useState } from "react";
 export default function ListaActividadesPage({
   actividades,
   asignaturas,
+  filtroAsignaturaInicial,
   navegar,
 }) {
-  const [filtro, setFiltro] = useState("todas");
-  const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState(null);
+  // Inicialización directa sin necesidad de useEffect
+  const [filtro, setFiltro] = useState(() =>
+    filtroAsignaturaInicial ? "asignaturas" : "todas",
+  );
+  const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState(
+    () => filtroAsignaturaInicial || null,
+  );
   const [busqueda, setBusqueda] = useState("");
 
   function quitarTildes(texto) {
-    return texto
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
   const ahora = new Date();
@@ -24,9 +28,7 @@ export default function ListaActividadesPage({
     const textoBusqueda = quitarTildes(busqueda.toLowerCase());
 
     const titulo = quitarTildes(actividad.titulo.toLowerCase());
-    const descripcion = quitarTildes(
-      actividad.descripcion.toLowerCase()
-    );
+    const descripcion = quitarTildes(actividad.descripcion.toLowerCase());
 
     if (
       textoBusqueda &&
@@ -79,64 +81,56 @@ export default function ListaActividadesPage({
         />
       </div>
 
-
       <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
-
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "todas"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "todas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("todas")}
         >
           Todas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "urgente"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "urgente" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("urgente")}
         >
           Urgente
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "semana"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "semana" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("semana")}
         >
           Próxima
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "normal"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "normal" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("normal")}
         >
           Normal
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "atrasadas"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "atrasadas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("atrasadas")}
         >
           Atrasadas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "asignaturas"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "asignaturas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => {
             setFiltro("asignaturas");
             setAsignaturaSeleccionada(null);
@@ -144,11 +138,9 @@ export default function ListaActividadesPage({
         >
           Asignaturas
         </button>
-
       </div>
 
       <div className="d-flex gap-4 align-items-start w-100">
-
         <div
           className="border rounded p-3 flex-grow-1"
           style={{
@@ -156,7 +148,6 @@ export default function ListaActividadesPage({
             height: "550px",
           }}
         >
-
           <div
             className="d-flex flex-column align-items-center gap-3"
             style={{
@@ -164,21 +155,16 @@ export default function ListaActividadesPage({
               overflowY: "auto",
             }}
           >
-
             {filtro === "asignaturas" && !asignaturaSeleccionada ? (
               <div className="w-100">
-                <h5 className="fw-bold mb-3">
-                  Selecciona una asignatura
-                </h5>
+                <h5 className="fw-bold mb-3">Selecciona una asignatura</h5>
 
                 <div className="d-flex flex-column gap-2">
                   {asignaturas.map((asignatura) => (
                     <button
                       key={asignatura.id}
                       className="btn btn-outline-primary text-start"
-                      onClick={() =>
-                        setAsignaturaSeleccionada(asignatura.id)
-                      }
+                      onClick={() => setAsignaturaSeleccionada(asignatura.id)}
                     >
                       📚 {asignatura.nombre}
                     </button>
@@ -192,12 +178,10 @@ export default function ListaActividadesPage({
             ) : (
               actividadesFiltradas.map((actividad) => {
                 const asignatura = asignaturas.find(
-                  (a) => a.id === actividad.asignaturaId
+                  (a) => a.id === actividad.asignaturaId,
                 );
 
-                const fechaLimite = new Date(
-                  actividad.fechaLimite
-                );
+                const fechaLimite = new Date(actividad.fechaLimite);
 
                 const atrasada = fechaLimite < ahora;
 
@@ -226,24 +210,18 @@ export default function ListaActividadesPage({
                       width: "85%",
                       cursor: "pointer",
                     }}
-                    onClick={() =>
-                      navegar("detalle", actividad.id)
-                    }
+                    onClick={() => navegar("detalle", actividad.id)}
                   >
                     <div className="card-body">
-
                       <div className="d-flex justify-content-between align-items-start">
-
                         <div>
                           <p
                             className="mb-2 fw-semibold"
                             style={{
-                              color:
-                                asignatura?.color || "#2563eb",
+                              color: asignatura?.color || "#2563eb",
                             }}
                           >
-                            {asignatura?.nombre ||
-                              "Sin asignatura"}
+                            {asignatura?.nombre || "Sin asignatura"}
                           </p>
 
                           <h5 className="card-title fw-bold mb-2">
@@ -256,12 +234,10 @@ export default function ListaActividadesPage({
                         >
                           {textoPrioridad}
                         </span>
-
                       </div>
 
                       <p className="card-text text-muted mb-3">
-                        {actividad.descripcion ||
-                          "Sin descripción"}
+                        {actividad.descripcion || "Sin descripción"}
                       </p>
 
                       <p className="text-muted mb-0">
@@ -274,7 +250,6 @@ export default function ListaActividadesPage({
                           minute: "2-digit",
                         })}
                       </p>
-
                     </div>
                   </div>
                 );
@@ -291,21 +266,12 @@ export default function ListaActividadesPage({
         >
           <div className="card shadow-sm border-0">
             <div className="card-body">
-              <h5 className="fw-bold mb-1">
-                Actividades
-              </h5>
-
-              <h2 className="fw-bold mb-1">
-                {actividades.length}
-              </h2>
-
-              <p className="mb-0 text-muted">
-                Actividades registradas
-              </p>
+              <h5 className="fw-bold mb-1">Actividades</h5>
+              <h2 className="fw-bold mb-1">{actividades.length}</h2>
+              <p className="mb-0 text-muted">Actividades registradas</p>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
