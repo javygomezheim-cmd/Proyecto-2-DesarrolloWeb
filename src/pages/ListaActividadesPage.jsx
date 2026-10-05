@@ -6,12 +6,39 @@ export default function ListaActividadesPage({
   navegar,
 }) {
   const [filtro, setFiltro] = useState("todas");
+  const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+
+  function quitarTildes(texto) {
+    return texto
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
 
   const ahora = new Date();
 
   const actividadesFiltradas = actividades.filter((actividad) => {
     const fechaLimite = new Date(actividad.fechaLimite);
     const atrasada = fechaLimite < ahora;
+
+    const textoBusqueda = quitarTildes(busqueda.toLowerCase());
+
+    const titulo = quitarTildes(actividad.titulo.toLowerCase());
+    const descripcion = quitarTildes(
+      actividad.descripcion.toLowerCase()
+    );
+
+    if (
+      textoBusqueda &&
+      !titulo.includes(textoBusqueda) &&
+      !descripcion.includes(textoBusqueda)
+    ) {
+      return false;
+    }
+
+    if (filtro === "asignaturas") {
+      return actividad.asignaturaId === asignaturaSeleccionada;
+    }
 
     if (filtro === "urgente") {
       return actividad.prioridad === "alta" && !atrasada;
@@ -47,9 +74,10 @@ export default function ListaActividadesPage({
           type="text"
           className="form-control"
           placeholder="🔍 Buscar actividades..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
         />
       </div>
-
 
 
       <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
@@ -109,7 +137,10 @@ export default function ListaActividadesPage({
             ? "btn-primary"
             : "filtro-boton"
             }`}
-          onClick={() => setFiltro("asignaturas")}
+          onClick={() => {
+            setFiltro("asignaturas");
+            setAsignaturaSeleccionada(null);
+          }}
         >
           Asignaturas
         </button>
@@ -132,7 +163,28 @@ export default function ListaActividadesPage({
               overflowY: "auto",
             }}
           >
-            {actividadesFiltradas.length === 0 ? (
+
+            {filtro === "asignaturas" && !asignaturaSeleccionada ? (
+              <div className="w-100">
+                <h5 className="fw-bold mb-3">
+                  Selecciona una asignatura
+                </h5>
+
+                <div className="d-flex flex-column gap-2">
+                  {asignaturas.map((asignatura) => (
+                    <button
+                      key={asignatura.id}
+                      className="btn btn-outline-primary text-start"
+                      onClick={() =>
+                        setAsignaturaSeleccionada(asignatura.id)
+                      }
+                    >
+                      📚 {asignatura.nombre}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : actividadesFiltradas.length === 0 ? (
               <p className="text-muted mt-4">
                 No hay actividades para este filtro
               </p>
