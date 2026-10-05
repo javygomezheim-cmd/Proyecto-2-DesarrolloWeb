@@ -1,12 +1,10 @@
-export default function Sidebar({ vista, navegar }) {
+export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
   return (
     <aside
       className="bg-dark text-white d-flex flex-column p-4"
       style={{ width: "260px", minHeight: "100vh" }}
     >
-      <h3 className="fw-bold mb-4">
-        Mis Actividades
-      </h3>
+      <h3 className="fw-bold mb-4">Mis Actividades</h3>
 
       <hr />
 
@@ -14,9 +12,7 @@ export default function Sidebar({ vista, navegar }) {
         <button
           type="button"
           className={`btn text-start ${
-            vista === "lista"
-              ? "btn-primary"
-              : "btn-outline-light"
+            vista === "lista" ? "btn-primary" : "btn-outline-light"
           }`}
           onClick={() => navegar("lista")}
         >
@@ -26,9 +22,7 @@ export default function Sidebar({ vista, navegar }) {
         <button
           type="button"
           className={`btn text-start ${
-            vista === "asignaturas"
-              ? "btn-primary"
-              : "btn-outline-light"
+            vista === "asignaturas" ? "btn-primary" : "btn-outline-light"
           }`}
           onClick={() => navegar("asignaturas")}
         >
@@ -51,7 +45,7 @@ export default function Sidebar({ vista, navegar }) {
           <button
             type="button"
             className="btn btn-outline-light"
-            onClick={() => alert("Nueva asignatura")}
+            onClick={abrirModalAsignatura}
           >
             + Nueva asignatura
           </button>
