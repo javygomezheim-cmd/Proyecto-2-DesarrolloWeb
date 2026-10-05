@@ -3,21 +3,32 @@ import { useState } from "react";
 export default function ListaActividadesPage({
   actividades,
   asignaturas,
+  filtroAsignaturaInicial,
   navegar,
 }) {
-  const [filtro, setFiltro] = useState("todas");
-  const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState(null);
+  // Inicialización directa sin necesidad de useEffect
+  const [filtro, setFiltro] = useState(() =>
+    filtroAsignaturaInicial ? "asignaturas" : "todas",
+  );
+
+  const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState(
+    () => filtroAsignaturaInicial || null,
+  );
+
   const [busqueda, setBusqueda] = useState("");
 
   function quitarTildes(texto) {
-    return texto
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
   const ahora = new Date();
 
   const actividadesFiltradas = actividades.filter((actividad) => {
+    // Las actividades completadas no aparecen en la lista principal
+    if (actividad.completada) {
+      return false;
+    }
+
     const fechaLimite = new Date(actividad.fechaLimite);
     const atrasada = fechaLimite < ahora;
 
@@ -25,7 +36,7 @@ export default function ListaActividadesPage({
 
     const titulo = quitarTildes(actividad.titulo.toLowerCase());
     const descripcion = quitarTildes(
-      actividad.descripcion.toLowerCase()
+      actividad.descripcion.toLowerCase(),
     );
 
     if (
@@ -41,15 +52,18 @@ export default function ListaActividadesPage({
     }
 
     if (filtro === "urgente") {
-      return actividad.prioridad === "alta" && !atrasada;
+      const dias = (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
+      return dias >= 0 && dias <= 2;
     }
 
     if (filtro === "semana") {
-      return actividad.prioridad === "media" && !atrasada;
+      const dias = (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
+      return dias > 2 && dias <= 7;
     }
 
     if (filtro === "normal") {
-      return actividad.prioridad === "baja" && !atrasada;
+      const dias = (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
+      return dias > 7;
     }
 
     if (filtro === "atrasadas") {
@@ -79,64 +93,56 @@ export default function ListaActividadesPage({
         />
       </div>
 
-
       <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
-
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "todas"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "todas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("todas")}
         >
           Todas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "urgente"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "urgente" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("urgente")}
         >
           Urgente
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "semana"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "semana" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("semana")}
         >
           Próxima
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "normal"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "normal" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("normal")}
         >
           Normal
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "atrasadas"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "atrasadas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("atrasadas")}
         >
           Atrasadas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "asignaturas"
-            ? "btn-primary"
-            : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "asignaturas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => {
             setFiltro("asignaturas");
             setAsignaturaSeleccionada(null);
@@ -144,11 +150,9 @@ export default function ListaActividadesPage({
         >
           Asignaturas
         </button>
-
       </div>
 
       <div className="actividades-contenido d-flex gap-4 align-items-start w-100">
-
         <div
           className="actividades-lista border rounded p-3 flex-grow-1"
           style={{
@@ -156,7 +160,6 @@ export default function ListaActividadesPage({
             height: "550px",
           }}
         >
-
           <div
             className="d-flex flex-column align-items-center gap-3"
             style={{
@@ -164,7 +167,6 @@ export default function ListaActividadesPage({
               overflowY: "auto",
             }}
           >
-
             {filtro === "asignaturas" && !asignaturaSeleccionada ? (
               <div className="w-100">
                 <h5 className="fw-bold mb-3">
@@ -192,25 +194,25 @@ export default function ListaActividadesPage({
             ) : (
               actividadesFiltradas.map((actividad) => {
                 const asignatura = asignaturas.find(
-                  (a) => a.id === actividad.asignaturaId
+                  (a) => a.id === actividad.asignaturaId,
                 );
 
-                const fechaLimite = new Date(
-                  actividad.fechaLimite
-                );
+                const fechaLimite = new Date(actividad.fechaLimite);
 
-                const atrasada = fechaLimite < ahora;
+                const dias =
+                  (fechaLimite - ahora) /
+                  (1000 * 60 * 60 * 24);
 
                 let textoPrioridad;
                 let clasePrioridad;
 
-                if (atrasada) {
+                if (dias < 0) {
                   textoPrioridad = "ATRASADA";
                   clasePrioridad = "prioridad-atrasada";
-                } else if (actividad.prioridad === "alta") {
+                } else if (dias <= 2) {
                   textoPrioridad = "URGENTE";
                   clasePrioridad = "prioridad-urgente";
-                } else if (actividad.prioridad === "media") {
+                } else if (dias <= 7) {
                   textoPrioridad = "PRÓXIMA";
                   clasePrioridad = "prioridad-proxima";
                 } else {
@@ -231,9 +233,7 @@ export default function ListaActividadesPage({
                     }
                   >
                     <div className="card-body">
-
                       <div className="d-flex justify-content-between align-items-start">
-
                         <div>
                           <p
                             className="mb-2 fw-semibold"
@@ -256,7 +256,6 @@ export default function ListaActividadesPage({
                         >
                           {textoPrioridad}
                         </span>
-
                       </div>
 
                       <p className="card-text text-muted mb-3">
@@ -274,7 +273,6 @@ export default function ListaActividadesPage({
                           minute: "2-digit",
                         })}
                       </p>
-
                     </div>
                   </div>
                 );
@@ -284,12 +282,9 @@ export default function ListaActividadesPage({
         </div>
 
         <div className="actividades-estadisticas">
-
           <div className="card shadow-sm border-0">
             <div className="card-body">
-              <h5 className="fw-bold mb-1">
-                Actividades
-              </h5>
+              <h5 className="fw-bold mb-1">Actividades</h5>
 
               <h2 className="fw-bold mb-1">
                 {actividades.length}
@@ -301,7 +296,6 @@ export default function ListaActividadesPage({
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

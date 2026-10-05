@@ -34,6 +34,15 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
         >
           📅 Calendario
         </button>
+        
+        <button
+          type="button"
+          className={`btn text-start ${vista === "historial" ? "btn-primary" : "btn-outline-light"
+            }`}
+          onClick={() => navegar("historial")}
+        >
+          📜 Historial
+        </button>
 
       </div>
 

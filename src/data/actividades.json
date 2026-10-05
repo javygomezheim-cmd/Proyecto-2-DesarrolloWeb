@@ -3,55 +3,371 @@
     "id": 1,
     "titulo": "Proyecto Final de Álgebra",
     "asignaturaId": 1,
-    "fechaLimite": "2026-10-18T23:59",
+    "fechaLimite": "2026-10-02T23:59",
     "descripcion": "Programar y documentar un software en Python para resolver sistemas de ecuaciones lineales mediante el método de eliminación de Gauss-Jordan.",
-    "prioridad": "alta",
-    "estado": "en-progreso",
+    "completada": false,
     "subtareas": [
-      { "id": 1, "texto": "Escribir algoritmos básicos de matrices", "hecha": true },
-      { "id": 2, "texto": "Implementar método Gauss-Jordan en código", "hecha": false },
-      { "id": 3, "texto": "Realizar pruebas unitarias con matrices de 3×3", "hecha": false },
-      { "id": 4, "texto": "Escribir reporte PDF y conclusiones", "hecha": false }
+      {
+        "id": 1,
+        "texto": "Escribir algoritmos básicos de matrices",
+        "hecha": true
+      },
+      {
+        "id": 2,
+        "texto": "Implementar método Gauss-Jordan en código",
+        "hecha": false
+      },
+      {
+        "id": 3,
+        "texto": "Realizar pruebas unitarias con matrices de 3×3",
+        "hecha": false
+      },
+      {
+        "id": 4,
+        "texto": "Escribir reporte PDF y conclusiones",
+        "hecha": false
+      }
     ]
   },
   {
     "id": 2,
     "titulo": "Informe de Laboratorio de Óptica",
     "asignaturaId": 2,
-    "fechaLimite": "2026-10-20T14:00",
+    "fechaLimite": "2026-10-03T14:00",
     "descripcion": "Análisis de los resultados del experimento de refracción de la luz y cálculo del índice de refracción.",
-    "prioridad": "media",
-    "estado": "pendiente",
+    "completada": true,
     "subtareas": []
   },
   {
     "id": 3,
     "titulo": "Lab de Química Orgánica",
     "asignaturaId": 3,
-    "fechaLimite": "2026-10-22T11:30",
+    "fechaLimite": "2026-10-04T11:30",
     "descripcion": "Informe completo sobre la destilación de compuestos orgánicos e hidrocarburos.",
-    "prioridad": "alta",
-    "estado": "pendiente",
+    "completada": false,
     "subtareas": []
   },
   {
     "id": 4,
-    "titulo": "Lectura de Macroeconomía",
-    "asignaturaId": 4,
-    "fechaLimite": "2026-10-25T09:00",
-    "descripcion": "Leer capítulo 4 sobre inflación y resumir los conceptos clave.",
-    "prioridad": "baja",
-    "estado": "pendiente",
+    "titulo": "Tarea de Análisis de Algoritmos",
+    "asignaturaId": 1,
+    "fechaLimite": "2026-10-05T23:59",
+    "descripcion": "Resolver ejercicios de complejidad temporal y análisis de algoritmos.",
+    "completada": false,
     "subtareas": []
   },
   {
     "id": 5,
+    "titulo": "Lectura de Macroeconomía",
+    "asignaturaId": 4,
+    "fechaLimite": "2026-10-07T09:00",
+    "descripcion": "Leer capítulo 4 sobre inflación y resumir los conceptos clave.",
+    "completada": false,
+    "subtareas": []
+  },
+  {
+    "id": 6,
     "titulo": "Presentación de Historia",
     "asignaturaId": 5,
-    "fechaLimite": "2026-10-28T16:00",
+    "fechaLimite": "2026-10-10T16:00",
     "descripcion": "Crear láminas sobre el impacto cultural de la Revolución.",
-    "prioridad": "media",
-    "estado": "pendiente",
+    "completada": false,
     "subtareas": []
+  },
+  {
+    "id": 7,
+    "titulo": "Laboratorio de Redes",
+    "asignaturaId": 2,
+    "fechaLimite": "2026-10-12T18:00",
+    "descripcion": "Configurar una red local y documentar la comunicación entre cliente y servidor.",
+    "completada": true,
+    "subtareas": []
+  },
+  {
+    "id": 8,
+    "titulo": "Informe de Minería de Datos",
+    "asignaturaId": 3,
+    "fechaLimite": "2026-10-18T23:59",
+    "descripcion": "Analizar un conjunto de datos y presentar los resultados obtenidos.",
+    "completada": false,
+    "subtareas": []
+  },
+  {
+    "id": 9,
+    "titulo": "Proyecto de Fundamentos de IA",
+    "asignaturaId": 1,
+    "fechaLimite": "2026-10-25T23:59",
+    "descripcion": "Implementar un sistema utilizando técnicas de inteligencia artificial.",
+    "completada": false,
+    "subtareas": []
+  },
+  {
+    "id": 10,
+    "titulo": "Exposición de Paradigmas de Programación",
+    "asignaturaId": 5,
+    "fechaLimite": "2026-11-05T12:00",
+    "descripcion": "Preparar una exposición sobre los principales paradigmas de programación.",
+    "completada": false,
+    "subtareas": []
+  },
+  {
+    "id": 11,
+    "titulo": "Guía de Ejercicios de Álgebra",
+    "asignaturaId": 1,
+    "fechaLimite": "2026-10-10T23:59",
+    "descripcion": "Resolver ejercicios de matrices, determinantes y sistemas de ecuaciones.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 6,
+        "texto": "Resolver ejercicios de matrices",
+        "hecha": true
+      },
+      {
+        "id": 7,
+        "texto": "Resolver determinantes",
+        "hecha": false
+      },
+      {
+        "id": 8,
+        "texto": "Resolver sistemas de ecuaciones",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "titulo": "Control de Física",
+    "asignaturaId": 2,
+    "fechaLimite": "2026-10-13T10:00",
+    "descripcion": "Preparar contenidos para el control sobre cinemática, velocidad y aceleración.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 9,
+        "texto": "Repasar fórmulas",
+        "hecha": false
+      },
+      {
+        "id": 10,
+        "texto": "Resolver ejercicios de cinemática",
+        "hecha": false
+      },
+      {
+        "id": 11,
+        "texto": "Realizar prueba de práctica",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "titulo": "Informe de Química Orgánica",
+    "asignaturaId": 3,
+    "fechaLimite": "2026-10-16T23:59",
+    "descripcion": "Preparar un segundo informe sobre propiedades y reacciones de compuestos orgánicos.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 12,
+        "texto": "Investigar propiedades de los compuestos",
+        "hecha": false
+      },
+      {
+        "id": 13,
+        "texto": "Analizar las reacciones",
+        "hecha": false
+      },
+      {
+        "id": 14,
+        "texto": "Redactar conclusiones",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "titulo": "Ensayo de Macroeconomía",
+    "asignaturaId": 4,
+    "fechaLimite": "2026-10-19T23:59",
+    "descripcion": "Escribir un ensayo sobre los efectos de la inflación en la economía de los hogares.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 15,
+        "texto": "Investigar fuentes",
+        "hecha": false
+      },
+      {
+        "id": 16,
+        "texto": "Escribir introducción",
+        "hecha": false
+      },
+      {
+        "id": 17,
+        "texto": "Desarrollar argumentos",
+        "hecha": false
+      },
+      {
+        "id": 18,
+        "texto": "Escribir conclusión",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "titulo": "Control de Historia",
+    "asignaturaId": 5,
+    "fechaLimite": "2026-10-24T09:00",
+    "descripcion": "Estudiar los contenidos vistos en clases sobre revoluciones y cambios sociales.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 19,
+        "texto": "Repasar apuntes",
+        "hecha": false
+      },
+      {
+        "id": 20,
+        "texto": "Estudiar fechas importantes",
+        "hecha": false
+      },
+      {
+        "id": 21,
+        "texto": "Realizar cuestionario de práctica",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "titulo": "Proyecto de Programación",
+    "asignaturaId": 6,
+    "fechaLimite": "2026-10-26T23:59",
+    "descripcion": "Desarrollar una aplicación en Python utilizando estructuras de datos y funciones.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 22,
+        "texto": "Diseñar la estructura del programa",
+        "hecha": true
+      },
+      {
+        "id": 23,
+        "texto": "Implementar funciones principales",
+        "hecha": false
+      },
+      {
+        "id": 24,
+        "texto": "Realizar pruebas",
+        "hecha": false
+      },
+      {
+        "id": 25,
+        "texto": "Documentar el código",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "titulo": "Taller de Álgebra",
+    "asignaturaId": 1,
+    "fechaLimite": "2026-10-29T18:00",
+    "descripcion": "Resolver problemas de funciones y ecuaciones aplicadas a situaciones reales.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 26,
+        "texto": "Resolver problemas de funciones",
+        "hecha": false
+      },
+      {
+        "id": 27,
+        "texto": "Resolver problemas aplicados",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "titulo": "Laboratorio de Física",
+    "asignaturaId": 2,
+    "fechaLimite": "2026-10-31T14:00",
+    "descripcion": "Realizar un experimento sobre las leyes del movimiento y analizar los resultados obtenidos.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 28,
+        "texto": "Preparar materiales",
+        "hecha": false
+      },
+      {
+        "id": 29,
+        "texto": "Realizar experimento",
+        "hecha": false
+      },
+      {
+        "id": 30,
+        "texto": "Registrar resultados",
+        "hecha": false
+      },
+      {
+        "id": 31,
+        "texto": "Analizar resultados",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "titulo": "Lectura de Historia",
+    "asignaturaId": 5,
+    "fechaLimite": "2026-11-02T20:00",
+    "descripcion": "Leer los capítulos asignados y preparar un resumen para la próxima clase.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 32,
+        "texto": "Leer capítulo 3",
+        "hecha": false
+      },
+      {
+        "id": 33,
+        "texto": "Leer capítulo 4",
+        "hecha": false
+      },
+      {
+        "id": 34,
+        "texto": "Preparar resumen",
+        "hecha": false
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "titulo": "Exposición de Macroeconomía",
+    "asignaturaId": 4,
+    "fechaLimite": "2026-11-05T16:00",
+    "descripcion": "Preparar una presentación sobre crecimiento económico, inflación y desempleo.",
+    "completada": false,
+    "subtareas": [
+      {
+        "id": 35,
+        "texto": "Investigar conceptos",
+        "hecha": false
+      },
+      {
+        "id": 36,
+        "texto": "Crear diapositivas",
+        "hecha": false
+      },
+      {
+        "id": 37,
+        "texto": "Preparar exposición oral",
+        "hecha": false
+      }
+    ]
   }
 ]
