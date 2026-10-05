@@ -1,28 +1,29 @@
-.filtro-boton {
-  border: 1px solid #e5e7eb;
-  color: #0d6efd;
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-top: 1px solid #dee2e6;
+  border-left: 1px solid #dee2e6;
 }
 
-.filtro-boton:hover {
-  border-color: #d1d5db;
-  color: #0d6efd;
-}
-.prioridad-urgente {
-  background-color: #fee2e2;
-  color: #b91c1c;
+.calendar-header {
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.prioridad-proxima {
-  background-color: #fef3c7;
-  color: #a16207;
+.calendar-day {
+  min-height: 120px;
+  padding: 10px;
+  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  background-color: white;
 }
 
-.prioridad-normal {
-  background-color: #dcfce7;
-  color: #15803d;
+.calendar-day.empty {
+  background-color: #f8f9fa;
 }
 
-.prioridad-atrasada {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+.calendar-day.holiday {
+  background-color: #fff3f3;
 }
