@@ -10,9 +10,11 @@ export default function ListaActividadesPage({
   const [filtro, setFiltro] = useState(() =>
     filtroAsignaturaInicial ? "asignaturas" : "todas",
   );
+
   const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState(
     () => filtroAsignaturaInicial || null,
   );
+
   const [busqueda, setBusqueda] = useState("");
 
   function quitarTildes(texto) {
@@ -22,13 +24,20 @@ export default function ListaActividadesPage({
   const ahora = new Date();
 
   const actividadesFiltradas = actividades.filter((actividad) => {
+    // Las actividades completadas no aparecen en la lista principal
+    if (actividad.completada) {
+      return false;
+    }
+
     const fechaLimite = new Date(actividad.fechaLimite);
     const atrasada = fechaLimite < ahora;
 
     const textoBusqueda = quitarTildes(busqueda.toLowerCase());
 
     const titulo = quitarTildes(actividad.titulo.toLowerCase());
-    const descripcion = quitarTildes(actividad.descripcion.toLowerCase());
+    const descripcion = quitarTildes(
+      actividad.descripcion.toLowerCase(),
+    );
 
     if (
       textoBusqueda &&
@@ -43,15 +52,18 @@ export default function ListaActividadesPage({
     }
 
     if (filtro === "urgente") {
-      return actividad.prioridad === "alta" && !atrasada;
+      const dias = (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
+      return dias >= 0 && dias <= 2;
     }
 
     if (filtro === "semana") {
-      return actividad.prioridad === "media" && !atrasada;
+      const dias = (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
+      return dias > 2 && dias <= 7;
     }
 
     if (filtro === "normal") {
-      return actividad.prioridad === "baja" && !atrasada;
+      const dias = (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
+      return dias > 7;
     }
 
     if (filtro === "atrasadas") {
@@ -141,7 +153,6 @@ export default function ListaActividadesPage({
       </div>
 
       <div className="actividades-contenido d-flex gap-4 align-items-start w-100">
-
         <div
           className="actividades-lista border rounded p-3 flex-grow-1"
           style={{
@@ -158,14 +169,18 @@ export default function ListaActividadesPage({
           >
             {filtro === "asignaturas" && !asignaturaSeleccionada ? (
               <div className="w-100">
-                <h5 className="fw-bold mb-3">Selecciona una asignatura</h5>
+                <h5 className="fw-bold mb-3">
+                  Selecciona una asignatura
+                </h5>
 
                 <div className="d-flex flex-column gap-2">
                   {asignaturas.map((asignatura) => (
                     <button
                       key={asignatura.id}
                       className="btn btn-outline-primary text-start"
-                      onClick={() => setAsignaturaSeleccionada(asignatura.id)}
+                      onClick={() =>
+                        setAsignaturaSeleccionada(asignatura.id)
+                      }
                     >
                       📚 {asignatura.nombre}
                     </button>
@@ -184,18 +199,20 @@ export default function ListaActividadesPage({
 
                 const fechaLimite = new Date(actividad.fechaLimite);
 
-                const atrasada = fechaLimite < ahora;
+                const dias =
+                  (fechaLimite - ahora) /
+                  (1000 * 60 * 60 * 24);
 
                 let textoPrioridad;
                 let clasePrioridad;
 
-                if (atrasada) {
+                if (dias < 0) {
                   textoPrioridad = "ATRASADA";
                   clasePrioridad = "prioridad-atrasada";
-                } else if (actividad.prioridad === "alta") {
+                } else if (dias <= 2) {
                   textoPrioridad = "URGENTE";
                   clasePrioridad = "prioridad-urgente";
-                } else if (actividad.prioridad === "media") {
+                } else if (dias <= 7) {
                   textoPrioridad = "PRÓXIMA";
                   clasePrioridad = "prioridad-proxima";
                 } else {
@@ -211,7 +228,9 @@ export default function ListaActividadesPage({
                       width: "85%",
                       cursor: "pointer",
                     }}
-                    onClick={() => navegar("detalle", actividad.id)}
+                    onClick={() =>
+                      navegar("detalle", actividad.id)
+                    }
                   >
                     <div className="card-body">
                       <div className="d-flex justify-content-between align-items-start">
@@ -219,10 +238,12 @@ export default function ListaActividadesPage({
                           <p
                             className="mb-2 fw-semibold"
                             style={{
-                              color: asignatura?.color || "#2563eb",
+                              color:
+                                asignatura?.color || "#2563eb",
                             }}
                           >
-                            {asignatura?.nombre || "Sin asignatura"}
+                            {asignatura?.nombre ||
+                              "Sin asignatura"}
                           </p>
 
                           <h5 className="card-title fw-bold mb-2">
@@ -238,7 +259,8 @@ export default function ListaActividadesPage({
                       </div>
 
                       <p className="card-text text-muted mb-3">
-                        {actividad.descripcion || "Sin descripción"}
+                        {actividad.descripcion ||
+                          "Sin descripción"}
                       </p>
 
                       <p className="text-muted mb-0">
@@ -260,12 +282,17 @@ export default function ListaActividadesPage({
         </div>
 
         <div className="actividades-estadisticas">
-
           <div className="card shadow-sm border-0">
             <div className="card-body">
               <h5 className="fw-bold mb-1">Actividades</h5>
-              <h2 className="fw-bold mb-1">{actividades.length}</h2>
-              <p className="mb-0 text-muted">Actividades registradas</p>
+
+              <h2 className="fw-bold mb-1">
+                {actividades.length}
+              </h2>
+
+              <p className="mb-0 text-muted">
+                Actividades registradas
+              </p>
             </div>
           </div>
         </div>
