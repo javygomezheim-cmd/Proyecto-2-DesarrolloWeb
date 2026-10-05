@@ -17,10 +17,29 @@ export default function ListaActividadesPage({
 
   const ahora = new Date();
 
-  const actividadesFiltradas = actividades.filter((actividad) => {
-    const fechaLimite = new Date(actividad.fechaLimite);
-    const atrasada = fechaLimite < ahora;
+  function obtenerUrgencia(fechaLimite) {
+    const ahora = new Date();
+    const fecha = new Date(fechaLimite);
 
+    const diferencia = fecha - ahora;
+    const dias = diferencia / (1000 * 60 * 60 * 24);
+
+    if (dias < 0) {
+      return "atrasada";
+    }
+
+    if (dias <= 2) {
+      return "urgente";
+    }
+
+    if (dias <= 7) {
+      return "proxima";
+    }
+
+    return "normal";
+  }
+
+  const actividadesFiltradas = actividades.filter((actividad) => {
     const textoBusqueda = quitarTildes(busqueda.toLowerCase());
 
     const titulo = quitarTildes(actividad.titulo.toLowerCase());
@@ -36,24 +55,20 @@ export default function ListaActividadesPage({
       return false;
     }
 
-    if (filtro === "asignaturas") {
-      return actividad.asignaturaId === asignaturaSeleccionada;
-    }
-
     if (filtro === "urgente") {
-      return actividad.prioridad === "alta" && !atrasada;
+      return obtenerUrgencia(actividad.fechaLimite) === "urgente";
     }
 
     if (filtro === "semana") {
-      return actividad.prioridad === "media" && !atrasada;
+      return obtenerUrgencia(actividad.fechaLimite) === "proxima";
     }
 
     if (filtro === "normal") {
-      return actividad.prioridad === "baja" && !atrasada;
+      return obtenerUrgencia(actividad.fechaLimite) === "normal";
     }
 
     if (filtro === "atrasadas") {
-      return atrasada;
+      return obtenerUrgencia(actividad.fechaLimite) === "atrasada";
     }
 
     return true;
@@ -204,13 +219,20 @@ export default function ListaActividadesPage({
                 let textoPrioridad;
                 let clasePrioridad;
 
-                if (atrasada) {
+                const urgencia = obtenerUrgencia(actividad.fechaLimite);
+                console.log(
+                  actividad.titulo,
+                  actividad.fechaLimite,
+                  urgencia
+                );
+
+                if (urgencia === "atrasada") {
                   textoPrioridad = "ATRASADA";
                   clasePrioridad = "prioridad-atrasada";
-                } else if (actividad.prioridad === "alta") {
+                } else if (urgencia === "urgente") {
                   textoPrioridad = "URGENTE";
                   clasePrioridad = "prioridad-urgente";
-                } else if (actividad.prioridad === "media") {
+                } else if (urgencia === "proxima") {
                   textoPrioridad = "PRÓXIMA";
                   clasePrioridad = "prioridad-proxima";
                 } else {

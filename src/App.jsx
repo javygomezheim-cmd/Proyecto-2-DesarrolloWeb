@@ -20,10 +20,18 @@ export default function App() {
   const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
 
   // 1. Inicialización con localStorage (si no existe, usa los JSON)
-  const [actividades, setActividades] = useState(() => {
-    const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
-    return guardadas ? JSON.parse(guardadas) : actividadesIniciales;
-  });
+const [actividades, setActividades] = useState(() => {
+  const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
+
+  const datos = guardadas
+    ? JSON.parse(guardadas)
+    : actividadesIniciales;
+
+  return datos.map((actividad) => ({
+    ...actividad,
+    completada: actividad.completada ?? false,
+  }));
+});
 
   const [asignaturas, setAsignaturas] = useState(() => {
     const guardadas = localStorage.getItem(STORAGE_ASIGNATURAS);
