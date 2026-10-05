@@ -2,7 +2,6 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
   return (
     <aside
       className="bg-dark text-white d-flex flex-column p-4"
-      style={{ width: "260px", minHeight: "100vh" }}
     >
       <h3 className="fw-bold mb-4">Mis Actividades</h3>
 
@@ -11,9 +10,8 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
       <div className="d-grid gap-2">
         <button
           type="button"
-          className={`btn text-start ${
-            vista === "lista" ? "btn-primary" : "btn-outline-light"
-          }`}
+          className={`btn text-start ${vista === "lista" ? "btn-primary" : "btn-outline-light"
+            }`}
           onClick={() => navegar("lista")}
         >
           📋 Actividades
@@ -21,9 +19,8 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
 
         <button
           type="button"
-          className={`btn text-start ${
-            vista === "asignaturas" ? "btn-primary" : "btn-outline-light"
-          }`}
+          className={`btn text-start ${vista === "asignaturas" ? "btn-primary" : "btn-outline-light"
+            }`}
           onClick={() => navegar("asignaturas")}
         >
           📚 Asignaturas
@@ -31,14 +28,13 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
 
         <button
           type="button"
-          className={`btn text-start ${
-            vista === "calendario" ? "btn-primary" : "btn-outline-light"
-          }`}
+          className={`btn text-start ${vista === "calendario" ? "btn-primary" : "btn-outline-light"
+            }`}
           onClick={() => navegar("calendario")}
         >
           📅 Calendario
         </button>
-        
+
       </div>
 
       <div className="mt-auto">

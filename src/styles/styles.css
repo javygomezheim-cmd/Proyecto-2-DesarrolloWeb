@@ -7,6 +7,7 @@
   border-color: #d1d5db;
   color: #0d6efd;
 }
+
 .prioridad-urgente {
   background-color: #fee2e2;
   color: #b91c1c;
@@ -25,4 +26,41 @@
 .prioridad-atrasada {
   background-color: #dbeafe;
   color: #1d4ed8;
+}
+
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .sidebar h3 {
+    margin-bottom: 15px !important;
+  }
+
+  .sidebar .d-grid {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+
+  .sidebar .d-grid .btn {
+    flex: 1 1 calc(33.333% - 8px);
+    min-width: 120px;
+    white-space: nowrap;
+  }
+
+  .sidebar .mt-auto {
+    margin-top: 15px !important;
+  }
+
+  .sidebar .mt-auto .d-grid .btn {
+    flex: 1 1 calc(50% - 8px);
+  }
 }

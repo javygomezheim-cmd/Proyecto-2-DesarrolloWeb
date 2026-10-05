@@ -93,7 +93,7 @@ export default function App() {
   }
 
   return (
-    <div className="d-flex min-vh-100">
+    <div className="d-flex flex-column flex-md-row min-vh-100">
       <Sidebar
         vista={vista}
         navegar={navegar}
