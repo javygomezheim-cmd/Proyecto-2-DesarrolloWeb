@@ -42,8 +42,8 @@ export default function AsignaturasPage({
 
   return (
     <div className="container py-4">
-      {/* Encabezado */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      {/* Encabezado Responsivo */}
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
         <div>
           <h1 className="fw-bold mb-1">Asignaturas</h1>
           <p className="text-muted mb-0">
@@ -51,7 +51,7 @@ export default function AsignaturasPage({
           </p>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 flex-wrap">
           <button
             className="btn btn-outline-danger"
             onClick={() => {
