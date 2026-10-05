@@ -19,6 +19,9 @@ export default function App() {
   // Estado del modal global de nueva asignatura
   const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
 
+  // ID de asignatura para filtrar al venir desde una tarjeta
+  const [filtroAsignaturaId, setFiltroAsignaturaId] = useState(null);
+
   // 1. Inicialización con localStorage (si no existe, usa los JSON)
   const [actividades, setActividades] = useState(() => {
     const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
@@ -42,7 +45,11 @@ export default function App() {
   // Navegación
   function navegar(nuevaVista, id = null) {
     setVista(nuevaVista);
-    setActividadId(id);
+    if (nuevaVista === "lista") {
+      setFiltroAsignaturaId(id); // Guarda el id de la materia si viene de la tarjeta, o null si viene del sidebar
+    } else {
+      setActividadId(id);
+    }
   }
 
   // --- Funciones para Actividades ---
@@ -103,8 +110,10 @@ export default function App() {
       <main className="main-content">
         {vista === "lista" && (
           <ListaActividadesPage
+            key={filtroAsignaturaId ?? "todas"}
             actividades={actividades}
             asignaturas={asignaturas}
+            filtroAsignaturaInicial={filtroAsignaturaId}
             navegar={navegar}
           />
         )}
