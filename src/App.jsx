@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import actividadesIniciales from "./data/actividades.json";
 import asignaturasIniciales from "./data/asignaturas.json";
 import ListaActividadesPage from "./pages/ListaActividadesPage";
@@ -6,25 +6,52 @@ import DetalleActividadPage from "./pages/DetalleActividadPage";
 import NuevaActividadPage from "./pages/NuevaActividadPage";
 import AsignaturasPage from "./pages/AsignaturasPage";
 import Sidebar from "./components/Sidebar";
+import AsignaturaModal from "./components/AsignaturaModal";
+
+const STORAGE_ACTIVIDADES = "actividades";
+const STORAGE_ASIGNATURAS = "asignaturas";
 
 export default function App() {
   const [vista, setVista] = useState("lista");
   const [actividadId, setActividadId] = useState(null);
-  const [actividades, setActividades] = useState(actividadesIniciales);
-  const [asignaturas, setAsignaturas] = useState(asignaturasIniciales);
 
+  // Estado del modal global de nueva asignatura
+  const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
+
+  // 1. Inicialización con localStorage (si no existe, usa los JSON)
+  const [actividades, setActividades] = useState(() => {
+    const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
+    return guardadas ? JSON.parse(guardadas) : actividadesIniciales;
+  });
+
+  const [asignaturas, setAsignaturas] = useState(() => {
+    const guardadas = localStorage.getItem(STORAGE_ASIGNATURAS);
+    return guardadas ? JSON.parse(guardadas) : asignaturasIniciales;
+  });
+
+  // 2. Guardar automáticamente en localStorage cuando haya cambios
+  useEffect(() => {
+    localStorage.setItem(STORAGE_ACTIVIDADES, JSON.stringify(actividades));
+  }, [actividades]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_ASIGNATURAS, JSON.stringify(asignaturas));
+  }, [asignaturas]);
+
+  // Navegación
   function navegar(nuevaVista, id = null) {
     setVista(nuevaVista);
     setActividadId(id);
   }
 
+  // --- Funciones para Actividades ---
   function agregarActividad(datos) {
     setActividades([...actividades, { ...datos, id: Date.now() }]);
   }
 
   function actualizarActividad(id, cambios) {
     setActividades(
-      actividades.map((a) => (a.id === id ? { ...a, ...cambios } : a))
+      actividades.map((a) => (a.id === id ? { ...a, ...cambios } : a)),
     );
   }
 
@@ -40,20 +67,37 @@ export default function App() {
           : {
               ...a,
               subtareas: a.subtareas.map((s) =>
-                s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s
+                s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
               ),
-            }
-      )
+            },
+      ),
     );
   }
 
+  // --- Funciones para Asignaturas ---
   function agregarAsignatura(datos) {
-    setAsignaturas([...asignaturas, { ...datos, id: Date.now() }]);
+    setAsignaturas([...asignaturas, { ...datos, id: datos.id || Date.now() }]);
+  }
+
+  function eliminarAsignaturas(idsAEliminar) {
+    const ids = Array.isArray(idsAEliminar) ? idsAEliminar : [idsAEliminar];
+
+    // 1. Eliminamos las asignaturas seleccionadas
+    setAsignaturas((actuales) => actuales.filter((a) => !ids.includes(a.id)));
+
+    // 2. Eliminamos en cascada todas las actividades asociadas a esas asignaturas
+    setActividades((actuales) =>
+      actuales.filter((actividad) => !ids.includes(actividad.asignaturaId)),
+    );
   }
 
   return (
     <div className="d-flex min-vh-100">
-      <Sidebar vista={vista} navegar={navegar} />
+      <Sidebar
+        vista={vista}
+        navegar={navegar}
+        abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
+      z/>
 
       <main className="flex-grow-1">
         {vista === "lista" && (
@@ -90,11 +134,19 @@ export default function App() {
           <AsignaturasPage
             asignaturas={asignaturas}
             actividades={actividades}
-            agregarAsignatura={agregarAsignatura}
+            eliminarAsignaturas={eliminarAsignaturas}
+            abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
             navegar={navegar}
           />
         )}
       </main>
+
+      {/* Modal global accesible desde cualquier botón */}
+      <AsignaturaModal
+        visible={mostrarModalAsignatura}
+        alCerrar={() => setMostrarModalAsignatura(false)}
+        alGuardar={agregarAsignatura}
+      />
     </div>
   );
 }
