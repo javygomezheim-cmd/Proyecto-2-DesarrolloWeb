@@ -1,17 +1,12 @@
 import "../styles/DetalleActividad.css";
 import ListaSubtareas from "../components/ListaSubtareas";
 
-const ESTADO = {
-  pendiente: { texto: "Pendiente", clase: "badge-pendiente" },
-  "en-progreso": { texto: "En progreso", clase: "badge-progreso" },
-  completada: { texto: "Completada", clase: "badge-completada" },
-};
-
 export default function DetalleActividadPage({
   actividadId,
   actividades,
   asignaturas,
   toggleSubtarea,
+  toggleCompletada,
   eliminarActividad,
   navegar,
 }) {
@@ -21,14 +16,21 @@ export default function DetalleActividadPage({
     return (
       <div className="p-4">
         <div className="alert alert-warning">No se encontró la actividad.</div>
-        <button className="btn btn-primary" onClick={() => navegar("lista")}>
+
+        <button
+          className="btn btn-primary"
+          onClick={() => navegar("lista")}
+        >
           Volver a actividades
         </button>
       </div>
     );
   }
 
-  const asignatura = asignaturas.find((s) => s.id === actividad.asignaturaId);
+  const asignatura = asignaturas.find(
+    (s) => s.id === actividad.asignaturaId
+  );
+
   const fecha = new Date(actividad.fechaLimite);
 
   const dia = fecha.toLocaleDateString("es-CL", {
@@ -77,7 +79,12 @@ export default function DetalleActividadPage({
     };
   }
 
-  const urgencia = obtenerUrgencia(actividad.fechaLimite);
+  const urgencia = actividad.completada
+    ? {
+        texto: "COMPLETADA",
+        clase: "prioridad-completada",
+      }
+    : obtenerUrgencia(actividad.fechaLimite);
 
   function handleEliminar() {
     if (window.confirm("¿Eliminar esta actividad?")) {
@@ -105,10 +112,6 @@ export default function DetalleActividadPage({
       <div className="d-flex gap-2 mb-4">
         <span className={`badge ${urgencia.clase}`}>
           {urgencia.texto}
-        </span>
-
-        <span className={`badge ${ESTADO[actividad.estado].clase}`}>
-          {ESTADO[actividad.estado].texto}
         </span>
       </div>
 
@@ -152,6 +155,23 @@ export default function DetalleActividadPage({
               toggleSubtarea(actividad.id, idSubtarea)
             }
           />
+
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="actividadCompletada"
+              checked={actividad.completada}
+              onChange={() => toggleCompletada(actividad.id)}
+            />
+
+            <label
+              className="form-check-label fw-semibold"
+              htmlFor="actividadCompletada"
+            >
+              Marcar como completada
+            </label>
+          </div>
 
           <div className="d-flex gap-2">
             <button

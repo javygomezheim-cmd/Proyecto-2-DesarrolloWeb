@@ -8,6 +8,7 @@ import AsignaturasPage from "./pages/AsignaturasPage";
 import Sidebar from "./components/Sidebar";
 import AsignaturaModal from "./components/AsignaturaModal";
 import CalendarioPage from "./pages/Calendariopage.jsx";
+import HistorialPage from "./pages/HistorialPage";
 
 const STORAGE_ACTIVIDADES = "actividades";
 const STORAGE_ASIGNATURAS = "asignaturas";
@@ -20,18 +21,18 @@ export default function App() {
   const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
 
   // 1. Inicialización con localStorage (si no existe, usa los JSON)
-const [actividades, setActividades] = useState(() => {
-  const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
+  const [actividades, setActividades] = useState(() => {
+    const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
 
-  const datos = guardadas
-    ? JSON.parse(guardadas)
-    : actividadesIniciales;
+    const datos = guardadas
+      ? JSON.parse(guardadas)
+      : actividadesIniciales;
 
-  return datos.map((actividad) => ({
-    ...actividad,
-    completada: actividad.completada ?? false,
-  }));
-});
+    return datos.map((actividad) => ({
+      ...actividad,
+      completada: actividad.completada ?? false,
+    }));
+  });
 
   const [asignaturas, setAsignaturas] = useState(() => {
     const guardadas = localStorage.getItem(STORAGE_ASIGNATURAS);
@@ -74,12 +75,22 @@ const [actividades, setActividades] = useState(() => {
         a.id !== idActividad
           ? a
           : {
-              ...a,
-              subtareas: a.subtareas.map((s) =>
-                s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
-              ),
-            },
+            ...a,
+            subtareas: a.subtareas.map((s) =>
+              s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
+            ),
+          },
       ),
+    );
+  }
+
+  function toggleCompletada(id) {
+    setActividades(
+      actividades.map((a) =>
+        a.id === id
+          ? { ...a, completada: !a.completada }
+          : a
+      )
     );
   }
 
@@ -123,6 +134,7 @@ const [actividades, setActividades] = useState(() => {
             actividades={actividades}
             asignaturas={asignaturas}
             toggleSubtarea={toggleSubtarea}
+            toggleCompletada={toggleCompletada}
             eliminarActividad={eliminarActividad}
             navegar={navegar}
           />
@@ -150,6 +162,13 @@ const [actividades, setActividades] = useState(() => {
         )}
 
         {vista === "calendario" && <CalendarioPage actividades={actividades} />}
+        {vista === "historial" && (
+          <HistorialPage
+            actividades={actividades}
+            asignaturas={asignaturas}
+            navegar={navegar}
+          />
+        )}
       </main>
 
       {/* Modal global accesible desde cualquier botón */}

@@ -46,6 +46,7 @@ export default function ListaActividadesPage({
     const descripcion = quitarTildes(
       actividad.descripcion.toLowerCase()
     );
+    if (actividad.completada) return false;
 
     if (
       textoBusqueda &&
@@ -220,13 +221,16 @@ export default function ListaActividadesPage({
                 let clasePrioridad;
 
                 const urgencia = obtenerUrgencia(actividad.fechaLimite);
-                console.log(
-                  actividad.titulo,
-                  actividad.fechaLimite,
-                  urgencia
-                );
+                if (actividad.completada) {
+                  textoPrioridad = "COMPLETADA";
+                  clasePrioridad = "prioridad-completada";
+                }
 
-                if (urgencia === "atrasada") {
+
+                if (actividad.completada) {
+                  textoPrioridad = "COMPLETADA";
+                  clasePrioridad = "prioridad-completada";
+                } else if (urgencia === "atrasada") {
                   textoPrioridad = "ATRASADA";
                   clasePrioridad = "prioridad-atrasada";
                 } else if (urgencia === "urgente") {
