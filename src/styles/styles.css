@@ -24,13 +24,18 @@
 }
 
 .prioridad-normal {
-  background-color: #dcfce7;
-  color: #15803d;
+  background-color: #f3f4f6;
+  color: #4b5563;
 }
 
 .prioridad-atrasada {
   background-color: #dbeafe;
   color: #1d4ed8;
+}
+
+.prioridad-completada {
+  background-color: #dcfce7;
+  color: #15803d;
 }
 
 .sidebar {

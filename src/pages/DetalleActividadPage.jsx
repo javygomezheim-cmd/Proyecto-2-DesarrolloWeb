@@ -1,23 +1,12 @@
 import "../styles/DetalleActividad.css";
 import ListaSubtareas from "../components/ListaSubtareas";
 
-const PRIORIDAD = {
-  alta: { texto: "Alta prioridad", clase: "badge-alta" },
-  media: { texto: "Media prioridad", clase: "badge-media" },
-  baja: { texto: "Baja prioridad", clase: "badge-baja" },
-};
-
-const ESTADO = {
-  pendiente: { texto: "Pendiente", clase: "badge-pendiente" },
-  "en-progreso": { texto: "En progreso", clase: "badge-progreso" },
-  completada: { texto: "Completada", clase: "badge-completada" },
-};
-
 export default function DetalleActividadPage({
   actividadId,
   actividades,
   asignaturas,
   toggleSubtarea,
+  toggleCompletada,
   eliminarActividad,
   navegar,
 }) {
@@ -27,25 +16,75 @@ export default function DetalleActividadPage({
     return (
       <div className="p-4">
         <div className="alert alert-warning">No se encontró la actividad.</div>
-        <button className="btn btn-primary" onClick={() => navegar("lista")}>
+
+        <button
+          className="btn btn-primary"
+          onClick={() => navegar("lista")}
+        >
           Volver a actividades
         </button>
       </div>
     );
   }
 
-  const asignatura = asignaturas.find((s) => s.id === actividad.asignaturaId);
+  const asignatura = asignaturas.find(
+    (s) => s.id === actividad.asignaturaId
+  );
+
   const fecha = new Date(actividad.fechaLimite);
+
   const dia = fecha.toLocaleDateString("es-CL", {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
+
   const hora = fecha.toLocaleTimeString("es-CL", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   });
+
+  function obtenerUrgencia(fechaLimite) {
+    const ahora = new Date();
+    const fecha = new Date(fechaLimite);
+
+    const diferencia = fecha - ahora;
+    const dias = diferencia / (1000 * 60 * 60 * 24);
+
+    if (dias < 0) {
+      return {
+        texto: "ATRASADA",
+        clase: "prioridad-atrasada",
+      };
+    }
+
+    if (dias <= 2) {
+      return {
+        texto: "URGENTE",
+        clase: "prioridad-urgente",
+      };
+    }
+
+    if (dias <= 7) {
+      return {
+        texto: "PRÓXIMA",
+        clase: "prioridad-proxima",
+      };
+    }
+
+    return {
+      texto: "NORMAL",
+      clase: "prioridad-normal",
+    };
+  }
+
+  const urgencia = actividad.completada
+    ? {
+        texto: "COMPLETADA",
+        clase: "prioridad-completada",
+      }
+    : obtenerUrgencia(actividad.fechaLimite);
 
   function handleEliminar() {
     if (window.confirm("¿Eliminar esta actividad?")) {
@@ -67,13 +106,12 @@ export default function DetalleActividadPage({
       <p className="text-primary fw-semibold small text-uppercase mb-1">
         {asignatura?.nombre}
       </p>
+
       <h1 className="h2 fw-bold">{actividad.titulo}</h1>
+
       <div className="d-flex gap-2 mb-4">
-        <span className={`badge ${PRIORIDAD[actividad.prioridad].clase}`}>
-          {PRIORIDAD[actividad.prioridad].texto}
-        </span>
-        <span className={`badge ${ESTADO[actividad.estado].clase}`}>
-          {ESTADO[actividad.estado].texto}
+        <span className={`badge ${urgencia.clase}`}>
+          {urgencia.texto}
         </span>
       </div>
 
@@ -81,25 +119,59 @@ export default function DetalleActividadPage({
         <div className="col-lg-4 order-lg-2">
           <div className="card">
             <div className="card-body">
-              <p className="small text-uppercase text-muted mb-0">Fecha límite</p>
+              <p className="small text-uppercase text-muted mb-0">
+                Fecha límite
+              </p>
+
               <p className="fw-semibold">
                 {dia}, {hora}
               </p>
+
               <hr />
-              <p className="small text-uppercase text-muted mb-0">Profesor</p>
-              <p className="fw-semibold mb-0">{asignatura?.profesor}</p>
+
+              <p className="small text-uppercase text-muted mb-0">
+                Profesor
+              </p>
+
+              <p className="fw-semibold mb-0">
+                {asignatura?.profesor}
+              </p>
             </div>
           </div>
         </div>
 
         <div className="col-lg-8 order-lg-1">
-          <h2 className="h6 text-uppercase fw-bold">Descripción</h2>
-          <p className="text-muted">{actividad.descripcion}</p>
+          <h2 className="h6 text-uppercase fw-bold">
+            Descripción
+          </h2>
+
+          <p className="text-muted">
+            {actividad.descripcion}
+          </p>
 
           <ListaSubtareas
             subtareas={actividad.subtareas}
-            onToggle={(idSubtarea) => toggleSubtarea(actividad.id, idSubtarea)}
+            onToggle={(idSubtarea) =>
+              toggleSubtarea(actividad.id, idSubtarea)
+            }
           />
+
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="actividadCompletada"
+              checked={actividad.completada}
+              onChange={() => toggleCompletada(actividad.id)}
+            />
+
+            <label
+              className="form-check-label fw-semibold"
+              htmlFor="actividadCompletada"
+            >
+              Marcar como completada
+            </label>
+          </div>
 
           <div className="d-flex gap-2">
             <button
@@ -109,6 +181,7 @@ export default function DetalleActividadPage({
             >
               Editar actividad
             </button>
+
             <button
               type="button"
               className="btn btn-outline-danger"
