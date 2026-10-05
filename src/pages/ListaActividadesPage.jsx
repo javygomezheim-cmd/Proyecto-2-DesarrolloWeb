@@ -1,34 +1,251 @@
+import { useState } from "react";
+
 export default function ListaActividadesPage({
   actividades,
   asignaturas,
   navegar,
 }) {
-  return (
-    <div className="container py-4">
-      {/* Encabezado */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="fw-bold mb-1">Mis Actividades</h1>
-          <p className="text-muted mb-0">
-            Organiza y revisa tus actividades académicas
-          </p>
-        </div>
+  const [filtro, setFiltro] = useState("todas");
 
-        <button
-          className="btn btn-primary"
-          onClick={() => navegar("nueva")}
-        >
-          + Nueva actividad
-        </button>
+  const ahora = new Date();
+
+  const actividadesFiltradas = actividades.filter((actividad) => {
+    const fechaLimite = new Date(actividad.fechaLimite);
+    const atrasada = fechaLimite < ahora;
+
+    if (filtro === "urgente") {
+      return actividad.prioridad === "alta" && !atrasada;
+    }
+
+    if (filtro === "semana") {
+      return actividad.prioridad === "media" && !atrasada;
+    }
+
+    if (filtro === "normal") {
+      return actividad.prioridad === "baja" && !atrasada;
+    }
+
+    if (filtro === "atrasadas") {
+      return atrasada;
+    }
+
+    return true;
+  });
+
+  return (
+    <div className="row align-items-start mb-4 px-3 pt-3">
+      <div className="col-12 col-md-7">
+        <h2 className="fw-bold mb-1">Mis Actividades</h2>
+
+        <p className="text-muted mb-0">
+          Organiza y revisa tus actividades académicas
+        </p>
       </div>
 
-      {/* Resumen */}
-      <div className="row g-3 mb-4">
-        <div className="col-md-4">
-          <div className="card shadow-sm border-0 h-100">
+      <div className="col-12 col-md-5 mt-3 mt-md-0">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍 Buscar actividades..."
+        />
+      </div>
+
+
+
+      <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "todas"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("todas")}
+        >
+          Todas
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "urgente"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("urgente")}
+        >
+          Urgente
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "semana"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("semana")}
+        >
+          Próxima
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "normal"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("normal")}
+        >
+          Normal
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "atrasadas"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("atrasadas")}
+        >
+          Atrasadas
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "asignaturas"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("asignaturas")}
+        >
+          Asignaturas
+        </button>
+
+      </div>
+
+      <div className="d-flex gap-4 align-items-start">
+
+        <div
+          className="border rounded p-3"
+          style={{
+            width: "calc(100% - 240px)",
+            height: "550px",
+          }}
+        >
+          <div
+            className="d-flex flex-column align-items-center gap-3"
+            style={{
+              height: "500px",
+              overflowY: "auto",
+            }}
+          >
+            {actividadesFiltradas.length === 0 ? (
+              <p className="text-muted mt-4">
+                No hay actividades para este filtro
+              </p>
+            ) : (
+              actividadesFiltradas.map((actividad) => {
+                const asignatura = asignaturas.find(
+                  (a) => a.id === actividad.asignaturaId
+                );
+
+                const fechaLimite = new Date(
+                  actividad.fechaLimite
+                );
+
+                const atrasada = fechaLimite < ahora;
+
+                let textoPrioridad;
+                let clasePrioridad;
+
+                if (atrasada) {
+                  textoPrioridad = "ATRASADA";
+                  clasePrioridad = "prioridad-atrasada";
+                } else if (actividad.prioridad === "alta") {
+                  textoPrioridad = "URGENTE";
+                  clasePrioridad = "prioridad-urgente";
+                } else if (actividad.prioridad === "media") {
+                  textoPrioridad = "PRÓXIMA";
+                  clasePrioridad = "prioridad-proxima";
+                } else {
+                  textoPrioridad = "NORMAL";
+                  clasePrioridad = "prioridad-normal";
+                }
+
+                return (
+                  <div
+                    className="card border shadow-sm"
+                    key={actividad.id}
+                    style={{
+                      width: "85%",
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      navegar("detalle", actividad.id)
+                    }
+                  >
+                    <div className="card-body">
+
+                      <div className="d-flex justify-content-between align-items-start">
+
+                        <div>
+                          <p
+                            className="mb-2 fw-semibold"
+                            style={{
+                              color:
+                                asignatura?.color || "#2563eb",
+                            }}
+                          >
+                            {asignatura?.nombre ||
+                              "Sin asignatura"}
+                          </p>
+
+                          <h5 className="card-title fw-bold mb-2">
+                            {actividad.titulo}
+                          </h5>
+                        </div>
+
+                        <span
+                          className={`badge rounded-pill ${clasePrioridad}`}
+                        >
+                          {textoPrioridad}
+                        </span>
+
+                      </div>
+
+                      <p className="card-text text-muted mb-3">
+                        {actividad.descripcion ||
+                          "Sin descripción"}
+                      </p>
+
+                      <p className="text-muted mb-0">
+                        📅 Fecha límite:{" "}
+                        {fechaLimite.toLocaleString("es-CL", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        <div
+          style={{
+            width: "220px",
+            flexShrink: 0,
+          }}
+        >
+          <div className="card shadow-sm border-0">
             <div className="card-body">
-              <h6 className="text-muted">Actividades</h6>
-              <h2 className="fw-bold">{actividades.length}</h2>
+              <h5 className="fw-bold mb-1">
+                Actividades
+              </h5>
+
+              <h2 className="fw-bold mb-1">
+                {actividades.length}
+              </h2>
+
               <p className="mb-0 text-muted">
                 Actividades registradas
               </p>
@@ -36,88 +253,6 @@ export default function ListaActividadesPage({
           </div>
         </div>
 
-        <div className="col-md-4">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-body">
-              <h6 className="text-muted">Asignaturas</h6>
-              <h2 className="fw-bold">{asignaturas.length}</h2>
-              <p className="mb-0 text-muted">
-                Asignaturas registradas
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-body">
-              <h6 className="text-muted">Estado</h6>
-              <h2 className="fw-bold">Activo</h2>
-              <p className="mb-0 text-muted">
-                Organiza tus pendientes
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Actividades */}
-      <div className="card shadow-sm border-0">
-        <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h3 className="fw-bold mb-0">Actividades académicas</h3>
-
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() => navegar("asignaturas")}
-            >
-              Ver asignaturas
-            </button>
-          </div>
-
-          {actividades.length === 0 ? (
-            <div className="text-center py-5">
-              <h5>No tienes actividades registradas</h5>
-              <p className="text-muted">
-                Agrega una nueva actividad para comenzar.
-              </p>
-
-              <button
-                className="btn btn-primary"
-                onClick={() => navegar("nueva")}
-              >
-                Crear actividad
-              </button>
-            </div>
-          ) : (
-            <div className="row g-3">
-              {actividades.map((actividad) => (
-                <div className="col-md-6 col-lg-4" key={actividad.id}>
-                  <div className="card h-100 border">
-                    <div className="card-body">
-                      <h5 className="card-title fw-bold">
-                        {actividad.titulo}
-                      </h5>
-
-                      <p className="card-text text-muted">
-                        {actividad.descripcion || "Sin descripción"}
-                      </p>
-
-                      <button
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={() =>
-                          navegar("detalle", actividad.id)
-                        }
-                      >
-                        Ver detalle
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -51,50 +51,50 @@ export default function App() {
     setAsignaturas([...asignaturas, { ...datos, id: Date.now() }]);
   }
 
-return (
-  <div className="d-flex min-vh-100">
-    <Sidebar vista={vista} navegar={navegar} />
+  return (
+    <div className="d-flex min-vh-100">
+      <Sidebar vista={vista} navegar={navegar} />
 
-    <main className="flex-grow-1">
-      {vista === "lista" && (
-        <ListaActividadesPage
-          actividades={actividades}
-          asignaturas={asignaturas}
-          navegar={navegar}
-        />
-      )}
+      <main className="flex-grow-1">
+        {vista === "lista" && (
+          <ListaActividadesPage
+            actividades={actividades}
+            asignaturas={asignaturas}
+            navegar={navegar}
+          />
+        )}
 
-      {vista === "detalle" && (
-        <DetalleActividadPage
-          actividadId={actividadId}
-          actividades={actividades}
-          asignaturas={asignaturas}
-          toggleSubtarea={toggleSubtarea}
-          eliminarActividad={eliminarActividad}
-          navegar={navegar}
-        />
-      )}
+        {vista === "detalle" && (
+          <DetalleActividadPage
+            actividadId={actividadId}
+            actividades={actividades}
+            asignaturas={asignaturas}
+            toggleSubtarea={toggleSubtarea}
+            eliminarActividad={eliminarActividad}
+            navegar={navegar}
+          />
+        )}
 
-      {vista === "nueva" && (
-        <NuevaActividadPage
-          actividadId={actividadId}
-          actividades={actividades}
-          asignaturas={asignaturas}
-          agregarActividad={agregarActividad}
-          actualizarActividad={actualizarActividad}
-          navegar={navegar}
-        />
-      )}
+        {vista === "nueva" && (
+          <NuevaActividadPage
+            actividadId={actividadId}
+            actividades={actividades}
+            asignaturas={asignaturas}
+            agregarActividad={agregarActividad}
+            actualizarActividad={actualizarActividad}
+            navegar={navegar}
+          />
+        )}
 
-      {vista === "asignaturas" && (
-        <AsignaturasPage
-          asignaturas={asignaturas}
-          actividades={actividades}
-          agregarAsignatura={agregarAsignatura}
-          navegar={navegar}
-        />
-      )}
-    </main>
-  </div>
-);
+        {vista === "asignaturas" && (
+          <AsignaturasPage
+            asignaturas={asignaturas}
+            actividades={actividades}
+            agregarAsignatura={agregarAsignatura}
+            navegar={navegar}
+          />
+        )}
+      </main>
+    </div>
+  );
 }
