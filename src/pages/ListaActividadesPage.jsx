@@ -7,70 +7,108 @@ export default function ListaActividadesPage({
 }) {
   const [filtro, setFiltro] = useState("todas");
 
+  const ahora = new Date();
+
+  const actividadesFiltradas = actividades.filter((actividad) => {
+    const fechaLimite = new Date(actividad.fechaLimite);
+    const atrasada = fechaLimite < ahora;
+
+    if (filtro === "urgente") {
+      return actividad.prioridad === "alta" && !atrasada;
+    }
+
+    if (filtro === "semana") {
+      return actividad.prioridad === "media" && !atrasada;
+    }
+
+    if (filtro === "normal") {
+      return actividad.prioridad === "baja" && !atrasada;
+    }
+
+    if (filtro === "atrasadas") {
+      return atrasada;
+    }
+
+    return true;
+  });
+
   return (
-    <div className="container py-4">
+    <div className="row align-items-start mb-4 px-3 pt-3">
+      <div className="col-12 col-md-7">
+        <h2 className="fw-bold mb-1">Mis Actividades</h2>
 
-      {/* Título y búsqueda */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="fw-bold mb-1">Mis Actividades</h1>
-
-          <p className="text-muted mb-0">
-            Organiza y revisa tus actividades académicas
-          </p>
-        </div>
-
-        <div className="ms-4" style={{ width: "280px" }}>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="🔍 Buscar actividad"
-          />
-        </div>
+        <p className="text-muted mb-0">
+          Organiza y revisa tus actividades académicas
+        </p>
       </div>
 
-      {/* Filtros */}
-      <div className="d-flex align-items-center gap-2 mb-3">
+      <div className="col-12 col-md-5 mt-3 mt-md-0">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍 Buscar actividades..."
+        />
+      </div>
+
+
+
+      <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "todas"
-              ? "btn-primary"
-              : "btn-outline-primary"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "todas"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
           onClick={() => setFiltro("todas")}
         >
           Todas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "urgente"
-              ? "btn-primary"
-              : "btn-outline-primary"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "urgente"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
           onClick={() => setFiltro("urgente")}
         >
-          Urgente (Próximas 24h)
+          Urgente
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "semana"
-              ? "btn-primary"
-              : "btn-outline-primary"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "semana"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
           onClick={() => setFiltro("semana")}
         >
-          Próxima (Esta semana)
+          Próxima
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "asignaturas"
-              ? "btn-primary"
-              : "btn-outline-primary"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "normal"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("normal")}
+        >
+          Normal
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "atrasadas"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("atrasadas")}
+        >
+          Atrasadas
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "asignaturas"
+            ? "btn-primary"
+            : "filtro-boton"
+            }`}
           onClick={() => setFiltro("asignaturas")}
         >
           Asignaturas
@@ -78,84 +116,120 @@ export default function ListaActividadesPage({
 
       </div>
 
-      {/* Actividades + resumen */}
-      <div className="d-flex align-items-start gap-4">
+      <div className="d-flex gap-4 align-items-start">
 
-        {/* Bloque de actividades */}
         <div
-          className="card shadow-sm border-0 flex-grow-1"
-          style={{ height: "550px" }}
+          className="border rounded p-3"
+          style={{
+            width: "calc(100% - 240px)",
+            height: "550px",
+          }}
         >
-          <div className="card-body">
+          <div
+            className="d-flex flex-column align-items-center gap-3"
+            style={{
+              height: "500px",
+              overflowY: "auto",
+            }}
+          >
+            {actividadesFiltradas.length === 0 ? (
+              <p className="text-muted mt-4">
+                No hay actividades para este filtro
+              </p>
+            ) : (
+              actividadesFiltradas.map((actividad) => {
+                const asignatura = asignaturas.find(
+                  (a) => a.id === actividad.asignaturaId
+                );
 
-            <div
-              style={{
-                height: "500px",
-                overflowY: "auto",
-                paddingRight: "10px",
-              }}
-            >
+                const fechaLimite = new Date(
+                  actividad.fechaLimite
+                );
 
-              {actividades.length === 0 ? (
-                <div className="text-center py-5">
+                const atrasada = fechaLimite < ahora;
 
-                  <h5>No tienes actividades registradas</h5>
+                let textoPrioridad;
+                let clasePrioridad;
 
-                  <p className="text-muted">
-                    Agrega una nueva actividad para comenzar.
-                  </p>
+                if (atrasada) {
+                  textoPrioridad = "ATRASADA";
+                  clasePrioridad = "prioridad-atrasada";
+                } else if (actividad.prioridad === "alta") {
+                  textoPrioridad = "URGENTE";
+                  clasePrioridad = "prioridad-urgente";
+                } else if (actividad.prioridad === "media") {
+                  textoPrioridad = "PRÓXIMA";
+                  clasePrioridad = "prioridad-proxima";
+                } else {
+                  textoPrioridad = "NORMAL";
+                  clasePrioridad = "prioridad-normal";
+                }
 
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => navegar("nueva")}
+                return (
+                  <div
+                    className="card border shadow-sm"
+                    key={actividad.id}
+                    style={{
+                      width: "85%",
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      navegar("detalle", actividad.id)
+                    }
                   >
-                    Crear actividad
-                  </button>
+                    <div className="card-body">
 
-                </div>
-              ) : (
-                <div className="d-flex flex-column gap-3">
+                      <div className="d-flex justify-content-between align-items-start">
 
-                  {actividades.map((actividad) => (
-                    <div
-                      className="card border shadow-sm"
-                      key={actividad.id}
-                      style={{ width: "85%" }}
-                    >
+                        <div>
+                          <p
+                            className="mb-2 fw-semibold"
+                            style={{
+                              color:
+                                asignatura?.color || "#2563eb",
+                            }}
+                          >
+                            {asignatura?.nombre ||
+                              "Sin asignatura"}
+                          </p>
 
-                      <div className="card-body">
+                          <h5 className="card-title fw-bold mb-2">
+                            {actividad.titulo}
+                          </h5>
+                        </div>
 
-                        <h5 className="card-title fw-bold">
-                          {actividad.titulo}
-                        </h5>
-
-                        <p className="card-text text-muted">
-                          {actividad.descripcion || "Sin descripción"}
-                        </p>
-
-                        <button
-                          className="btn btn-outline-primary btn-sm"
-                          onClick={() =>
-                            navegar("detalle", actividad.id)
-                          }
+                        <span
+                          className={`badge rounded-pill ${clasePrioridad}`}
                         >
-                          Ver detalle
-                        </button>
+                          {textoPrioridad}
+                        </span>
 
                       </div>
 
+                      <p className="card-text text-muted mb-3">
+                        {actividad.descripcion ||
+                          "Sin descripción"}
+                      </p>
+
+                      <p className="text-muted mb-0">
+                        📅 Fecha límite:{" "}
+                        {fechaLimite.toLocaleString("es-CL", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+
                     </div>
-                  ))}
-
-                </div>
-              )}
-
-            </div>
-
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Resumen */}
         <div
           style={{
             width: "220px",
@@ -163,9 +237,7 @@ export default function ListaActividadesPage({
           }}
         >
           <div className="card shadow-sm border-0">
-
             <div className="card-body">
-
               <h5 className="fw-bold mb-1">
                 Actividades
               </h5>
@@ -177,14 +249,11 @@ export default function ListaActividadesPage({
               <p className="mb-0 text-muted">
                 Actividades registradas
               </p>
-
             </div>
-
           </div>
         </div>
 
       </div>
-
     </div>
   );
 }

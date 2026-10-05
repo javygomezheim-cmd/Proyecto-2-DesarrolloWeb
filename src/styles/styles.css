@@ -1,0 +1,28 @@
+.filtro-boton {
+  border: 1px solid #e5e7eb;
+  color: #0d6efd;
+}
+
+.filtro-boton:hover {
+  border-color: #d1d5db;
+  color: #0d6efd;
+}
+.prioridad-urgente {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.prioridad-proxima {
+  background-color: #fef3c7;
+  color: #a16207;
+}
+
+.prioridad-normal {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.prioridad-atrasada {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
