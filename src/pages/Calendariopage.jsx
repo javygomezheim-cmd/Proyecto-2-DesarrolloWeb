@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { obtenerFeriados } from "../services/publicApi";
+import actividadesIniciales from "../data/actividades.json";
 
 export default function Calendariopage() {
   const [fechaActual, setFechaActual] = useState(new Date());
@@ -10,35 +11,38 @@ export default function Calendariopage() {
   const año = fechaActual.getFullYear();
   const mes = fechaActual.getMonth();
 
-  // 1. Cargar feriados de la API y actividades desde localStorage
+  const cargarActividades = () => {
+    const actividadesGuardadas = localStorage.getItem("actividades");
+    if (actividadesGuardadas) {
+      try {
+        setActividades(JSON.parse(actividadesGuardadas));
+      } catch (e) {
+        console.error("Error al parsear actividades de localStorage", e);
+        setActividades(actividadesIniciales);
+      }
+    } else {
+      setActividades(actividadesIniciales);
+      localStorage.setItem("actividades", JSON.stringify(actividadesIniciales));
+    }
+  };
+
   useEffect(() => {
     let montado = true;
 
     async function cargarDatos() {
       setCargando(true);
-      
-      // Obtener feriados desde la API
       const datosAPI = await obtenerFeriados();
       
-      // Obtener actividades creadas por el usuario desde localStorage
-      const actividadesGuardadas = localStorage.getItem("actividades");
-      const listaActividades = actividadesGuardadas ? JSON.parse(actividadesGuardadas) : [];
-
       if (montado) {
         setFeriados(datosAPI);
-        setActividades(listaActividades);
+        cargarActividades();
         setCargando(false);
       }
     }
 
     cargarDatos();
 
-    // Escuchar cambios en localStorage para actualizar en tiempo real si se elimina o crea una actividad
-    const manejarCambioStorage = () => {
-      const actividadesGuardadas = localStorage.getItem("actividades");
-      setActividades(actividadesGuardadas ? JSON.parse(actividadesGuardadas) : []);
-    };
-
+    const manejarCambioStorage = () => cargarActividades();
     window.addEventListener("storage", manejarCambioStorage);
 
     return () => {
@@ -63,22 +67,34 @@ export default function Calendariopage() {
     return `${a}-${mm}-${dd}`;
   };
 
-  // Mapear feriados por fecha "YYYY-MM-DD"
+  const obtenerFechaActividad = (act) => {
+    const raw = act.fechaLimite || act.fecha || act.fecha_limite;
+    if (!raw) return null;
+    return raw.split("T")[0];
+  };
+
+  const esCompletada = (act) => {
+    return (
+      act.estado === "completada" ||
+      act.estado === "completado" ||
+      act.completada === true ||
+      act.completado === true
+    );
+  };
+
   const mapaFeriados = {};
   feriados.forEach((f) => {
-    if (f && f.date) {
-      mapaFeriados[f.date] = f;
-    }
+    if (f && f.date) mapaFeriados[f.date] = f;
   });
 
-  // Mapear actividades por fecha "YYYY-MM-DD" (admite múltiples actividades el mismo día)
   const mapaActividades = {};
   actividades.forEach((act) => {
-    if (act && act.fecha) {
-      if (!mapaActividades[act.fecha]) {
-        mapaActividades[act.fecha] = [];
+    const fechaClave = obtenerFechaActividad(act);
+    if (fechaClave) {
+      if (!mapaActividades[fechaClave]) {
+        mapaActividades[fechaClave] = [];
       }
-      mapaActividades[act.fecha].push(act);
+      mapaActividades[fechaClave].push(act);
     }
   });
 
@@ -88,17 +104,12 @@ export default function Calendariopage() {
   const diaInicioSemana = (primerDiaMes.getDay() + 6) % 7;
 
   const celdas = [];
-  for (let i = 0; i < diaInicioSemana; i++) {
-    celdas.push(null);
-  }
-  for (let d = 1; d <= totalDiasMes; d++) {
-    celdas.push(d);
-  }
+  for (let i = 0; i < diaInicioSemana; i++) celdas.push(null);
+  for (let d = 1; d <= totalDiasMes; d++) celdas.push(d);
 
   const hoy = new Date();
   const esMesActual = hoy.getFullYear() === año && hoy.getMonth() === mes;
 
-  // Filtrar eventos y feriados del mes visible
   const feriadosDelMes = feriados.filter((f) => {
     if (!f || !f.date) return false;
     const [a, m] = f.date.split("-");
@@ -106,8 +117,9 @@ export default function Calendariopage() {
   });
 
   const actividadesDelMes = actividades.filter((act) => {
-    if (!act || !act.fecha) return false;
-    const [a, m] = act.fecha.split("-");
+    const fechaClave = obtenerFechaActividad(act);
+    if (!fechaClave) return false;
+    const [a, m] = fechaClave.split("-");
     return parseInt(a, 10) === año && parseInt(m, 10) - 1 === mes;
   });
 
@@ -116,7 +128,7 @@ export default function Calendariopage() {
       <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
           <h2 className="fw-bold mb-0">📅 Calendario Académico y Feriados</h2>
-          <small className="text-muted">Feriados (Nager.Date) y tus actividades académicas</small>
+          <small className="text-muted">Feriados y tus actividades académicas sincronizadas</small>
         </div>
         <button className="btn btn-outline-primary" onClick={irAHoy}>
           Ir a Hoy
@@ -158,9 +170,7 @@ export default function Calendariopage() {
                   ))}
 
                   {celdas.map((dia, idx) => {
-                    if (dia === null) {
-                      return <div key={`empty-${idx}`} className="p-3" />;
-                    }
+                    if (dia === null) return <div key={`empty-${idx}`} style={{ height: "120px" }} />;
 
                     const fechaStr = formatearFechaStr(año, mes, dia);
                     const feriado = mapaFeriados[fechaStr];
@@ -170,16 +180,17 @@ export default function Calendariopage() {
                     return (
                       <div
                         key={fechaStr}
-                        className={`p-2 border rounded d-flex flex-column justify-content-between align-items-start ${
+                        className={`p-2 border rounded d-flex flex-column justify-content-start align-items-start ${
                           feriado
                             ? "bg-danger bg-opacity-10 border-danger"
                             : esHoy
                             ? "bg-primary bg-opacity-10 border-primary"
                             : "bg-white"
                         }`}
-                        style={{ minHeight: "95px" }}
+                        style={{ height: "120px", overflow: "hidden" }} // Mantiene el tamaño estricto
                       >
-                        <div className="d-flex justify-content-between w-100 align-items-center">
+                        {/* Cabecera de la celda */}
+                        <div className="d-flex justify-content-between w-100 align-items-center mb-1 flex-shrink-0">
                           <span
                             className={`fw-bold ${
                               esHoy
@@ -190,45 +201,49 @@ export default function Calendariopage() {
                             }`}
                             style={
                               esHoy
-                                ? { width: "26px", height: "26px", display: "inline-flex", alignItems: "center", justifyContent: "center" }
-                                : {}
+                                ? { width: "24px", height: "24px", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "11px" }
+                                : { fontSize: "13px" }
                             }
                           >
                             {dia}
                           </span>
                           {feriado && (
-                            <span className="badge bg-danger text-white" style={{ fontSize: "9px" }}>
-                              🇨🇱 Feriado
+                            <span className="badge bg-danger text-white" style={{ fontSize: "8px", padding: "2px 4px" }}>
+                              🇨🇱
                             </span>
                           )}
                         </div>
 
-                        {/* Mostrar Feriado */}
-                        {feriado && (
-                          <div
-                            className="mt-1 text-danger fw-bold lh-1"
-                            style={{ fontSize: "11px", wordBreak: "break-word" }}
-                            title={feriado.localName}
-                          >
-                            {feriado.localName}
-                          </div>
-                        )}
+                        {/* Contenedor escroleable si hay muchas tareas/feriado */}
+                        <div className="w-100 overflow-auto pe-1" style={{ maxHeight: "85px" }}>
+                          {feriado && (
+                            <div
+                              className="mb-1 text-danger fw-bold lh-sm text-truncate"
+                              style={{ fontSize: "10px" }}
+                              title={feriado.localName}
+                            >
+                              🎉 {feriado.localName}
+                            </div>
+                          )}
 
-                        {/* Mostrar Actividades creadas */}
-                        {listaActividadesDia.length > 0 && (
-                          <div className="w-100 mt-1 d-flex flex-column gap-1">
-                            {listaActividadesDia.map((act) => (
+                          {listaActividadesDia.map((act) => {
+                            const completada = esCompletada(act);
+                            return (
                               <div
                                 key={act.id || act.titulo}
-                                className="badge bg-info text-dark text-truncate text-start w-100 p-1"
-                                style={{ fontSize: "10px", fontWeight: "500" }}
-                                title={act.titulo || act.nombre}
+                                className={`badge text-truncate text-start w-100 mb-1 p-1 ${
+                                  completada
+                                    ? "bg-success bg-opacity-25 text-success text-decoration-line-through border border-success"
+                                    : "bg-info text-dark"
+                                }`}
+                                style={{ fontSize: "9px", fontWeight: "500", display: "block" }}
+                                title={`${act.titulo || act.nombre} ${completada ? "(Completada)" : ""}`}
                               >
-                                📌 {act.titulo || act.nombre}
+                                {completada ? "✅" : "📌"} {act.titulo || act.nombre}
                               </div>
-                            ))}
-                          </div>
-                        )}
+                            );
+                          })}
+                        </div>
                       </div>
                     );
                   })}
@@ -251,17 +266,23 @@ export default function Calendariopage() {
                 <p className="text-muted text-center my-3">No hay actividades programadas este mes.</p>
               ) : (
                 <ul className="list-group list-group-flush">
-                  {actividadesDelMes.map((act) => (
-                    <li key={act.id || act.titulo} className="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
-                      <div>
-                        <strong className="d-block text-dark">{act.titulo || act.nombre}</strong>
-                        <small className="text-muted">📅 {act.fecha}</small>
-                      </div>
-                      {act.asignatura && (
-                        <span className="badge bg-primary">{act.asignatura}</span>
-                      )}
-                    </li>
-                  ))}
+                  {actividadesDelMes.map((act) => {
+                    const completada = esCompletada(act);
+                    const fechaClave = obtenerFechaActividad(act);
+                    return (
+                      <li key={act.id || act.titulo} className="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                        <div>
+                          <strong className={`d-block ${completada ? "text-decoration-line-through text-muted" : "text-dark"}`}>
+                            {completada ? "✅ " : ""}{act.titulo || act.nombre}
+                          </strong>
+                          <small className="text-muted">📅 {fechaClave}</small>
+                        </div>
+                        <span className={`badge ${completada ? "bg-success" : "bg-primary"}`}>
+                          {completada ? "Completada" : act.estado || "Pendiente"}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
