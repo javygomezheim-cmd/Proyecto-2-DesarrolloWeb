@@ -8,6 +8,7 @@ import AsignaturasPage from "./pages/AsignaturasPage";
 import Sidebar from "./components/Sidebar";
 import AsignaturaModal from "./components/AsignaturaModal";
 import CalendarioPage from "./pages/Calendariopage.jsx";
+import LibrosPage from "./pages/LibrosPage.jsx";
 
 const STORAGE_ACTIVIDADES = "actividades";
 const STORAGE_ASIGNATURAS = "asignaturas";
@@ -66,11 +67,11 @@ export default function App() {
         a.id !== idActividad
           ? a
           : {
-              ...a,
-              subtareas: a.subtareas.map((s) =>
-                s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
-              ),
-            },
+            ...a,
+            subtareas: a.subtareas.map((s) =>
+              s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
+            ),
+          },
       ),
     );
   }
@@ -142,6 +143,10 @@ export default function App() {
         )}
 
         {vista === "calendario" && <CalendarioPage actividades={actividades} />}
+
+        {vista === "libros" && (
+          <LibrosPage asignaturas={asignaturas} />
+        )}
       </main>
 
       {/* Modal global accesible desde cualquier botón */}

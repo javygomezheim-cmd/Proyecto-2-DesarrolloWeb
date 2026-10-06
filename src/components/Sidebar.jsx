@@ -35,6 +35,17 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
           📅 Calendario
         </button>
 
+        <button
+          type="button"
+          className={`btn text-start ${vista === "libros"
+              ? "btn-primary"
+              : "btn-outline-light"
+            }`}
+          onClick={() => navegar("libros")}
+        >
+          📖 Libros
+        </button>
+
       </div>
 
       <div className="mt-auto">
