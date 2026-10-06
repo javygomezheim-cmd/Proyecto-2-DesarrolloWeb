@@ -9,6 +9,7 @@ import Sidebar from "./components/Sidebar";
 import AsignaturaModal from "./components/AsignaturaModal";
 import CalendarioPage from "./pages/Calendariopage.jsx";
 import HistorialPage from "./pages/HistorialPage";
+import LibrosPage from "./pages/LibrosPage.jsx";
 
 const STORAGE_ACTIVIDADES = "actividades";
 const STORAGE_ASIGNATURAS = "asignaturas";
@@ -175,7 +176,10 @@ export default function App() {
             actividades={actividades}
             asignaturas={asignaturas}
             navegar={navegar}
-          />
+          />)}
+
+        {vista === "libros" && (
+          <LibrosPage asignaturas={asignaturas} />
         )}
       </main>
 
