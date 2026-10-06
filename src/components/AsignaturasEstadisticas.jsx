@@ -3,7 +3,9 @@ export default function AsignaturasEstadisticas({ asignaturas, actividades }) {
   const totalAsignaturas = asignaturas.length;
 
   // 2. Total de actividades registradas
-  const totalActividades = actividades.length;
+  const totalActividades = actividades.filter(
+    (act) => !act.completada && act.estado !== "completada",
+  ).length;
 
   // 3. Próxima entrega (solo día y mes)
   const fechaProxima = (() => {
