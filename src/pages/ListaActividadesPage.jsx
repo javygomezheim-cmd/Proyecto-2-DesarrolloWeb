@@ -287,7 +287,7 @@ export default function ListaActividadesPage({
               <h5 className="fw-bold mb-1">Actividades</h5>
 
               <h2 className="fw-bold mb-1">
-                {actividades.length}
+                {actividadesFiltradas.length}
               </h2>
 
               <p className="mb-0 text-muted">

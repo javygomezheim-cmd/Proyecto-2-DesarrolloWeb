@@ -6,15 +6,18 @@ export default function AsignaturaCard({
   seleccionar,
   navegar,
 }) {
-  // 1. Filtrar las actividades correspondientes a esta asignatura
-  const actividadesDeMateria = actividades.filter(
-    (actividad) => actividad.asignaturaId === asignatura.id,
+  // 1. Filtrar solo las actividades PENDIENTES (no completadas) de esta asignatura
+  const actividadesPendientes = actividades.filter(
+    (actividad) =>
+      actividad.asignaturaId === asignatura.id &&
+      !actividad.completada &&
+      actividad.estado !== "completada",
   );
-  const cantidad = actividadesDeMateria.length;
+  const cantidad = actividadesPendientes.length;
 
   // 2. Obtener el próximo trabajo con fecha límite más cercana
   const proximoTrabajo = (() => {
-    const conFecha = actividadesDeMateria
+    const conFecha = actividadesPendientes
       .filter((act) => act.fechaLimite)
       .map((act) => ({
         ...act,
