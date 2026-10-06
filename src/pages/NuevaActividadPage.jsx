@@ -16,8 +16,7 @@ export default function NuevaActividadPage({
     asignaturaId: asignaturas[0]?.id ?? "",
     fechaLimite: "",
     descripcion: "",
-    prioridad: "media",
-    estado: "pendiente",
+    completada: false,
     subtareas: [],
   };
 

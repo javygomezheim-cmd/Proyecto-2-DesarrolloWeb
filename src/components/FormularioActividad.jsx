@@ -78,38 +78,6 @@ export default function FormularioActividad({
           />
         </div>
 
-        <div className="col-md-3">
-          <label htmlFor="prioridad" className="form-label">Prioridad</label>
-          <select
-            id="prioridad"
-            name="prioridad"
-            className="form-select"
-            value={formulario.prioridad}
-            onChange={handleChange}
-          >
-            <option value="alta">Urgente</option>
-            <option value="media">Próxima</option>
-            <option value="baja">Normal</option>
-          </select>
-        </div>
-
-        {editando && (
-          <div className="col-md-3">
-            <label htmlFor="estado" className="form-label">Estado</label>
-            <select
-              id="estado"
-              name="estado"
-              className="form-select"
-              value={formulario.estado}
-              onChange={handleChange}
-            >
-              <option value="pendiente">Pendiente</option>
-              <option value="en-progreso">En progreso</option>
-              <option value="completada">Completada</option>
-            </select>
-          </div>
-        )}
-
         <div className="col-12">
           <label htmlFor="descripcion" className="form-label">Descripción</label>
           <textarea
