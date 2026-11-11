@@ -5,4 +5,4 @@
   { "id": 4, "nombre": "Economía", "profesor": "Felipe Rojas", "color": "#059669" },
   { "id": 5, "nombre": "Historia", "profesor": "Matías Soto", "color": "#8b5cf6" },
   { "id": 6, "nombre": "Programación", "profesor": "Sebastián Herrera", "color": "#ec4899" }
-]
+] 
