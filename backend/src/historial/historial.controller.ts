@@ -1,7 +1,14 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { HistorialService } from './historial.service.js';
+import { HistorialActividad } from './schemas/historial-actividad.schema.js';
 
 @ApiTags('Historial')
 @Controller('historial')
@@ -10,9 +17,28 @@ export class HistorialController {
 
   @Get()
   @ApiOperation({ summary: 'Listar el historial de actividad de un usuario' })
-  @ApiQuery({ name: 'usuarioId', required: true })
-  @ApiQuery({ name: 'entidad', required: false })
-  @ApiQuery({ name: 'limite', required: false })
+  @ApiQuery({
+    name: 'usuarioId',
+    required: true,
+    description: 'Id del usuario cuyo historial se quiere ver',
+  })
+  @ApiQuery({
+    name: 'entidad',
+    required: false,
+    description: 'Filtrar por tipo de elemento',
+    enum: ['asignatura', 'tarea', 'subtarea', 'evaluacion'],
+  })
+  @ApiQuery({
+    name: 'limite',
+    required: false,
+    description: 'Cantidad máxima de eventos a devolver (por defecto 50)',
+    example: 50,
+  })
+  @ApiOkResponse({
+    description: 'Eventos del usuario, del más reciente al más antiguo',
+    type: [HistorialActividad],
+  })
+  @ApiBadRequestResponse({ description: 'Falta el parámetro usuarioId' })
   listar(
     @Query('usuarioId') usuarioId: string,
     @Query('entidad') entidad?: string,
