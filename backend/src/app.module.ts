@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,11 +7,8 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 import { AsignaturasModule } from './asignaturas/asignaturas.module.js';
-<<<<<<< HEAD
-
-=======
 import { TareasModule } from './tareas/tareas.module.js';
->>>>>>> feature/backend-tareas
+import { HistorialModule } from './historial/historial.module.js';
 
 @Module({
   imports: [
@@ -49,11 +45,10 @@ import { TareasModule } from './tareas/tareas.module.js';
     UsuariosModule,
 
     AsignaturasModule,
-<<<<<<< HEAD
-=======
 
     TareasModule,
->>>>>>> feature/backend-tareas
+
+    HistorialModule,
   ],
   controllers: [AppController],
   providers: [AppService],
