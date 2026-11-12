@@ -8,7 +8,17 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { AsignaturasService } from './asignaturas.service.js';
 import { CrearAsignaturaDto } from './dto/crear-asignatura.dto.js';
@@ -27,12 +37,15 @@ export class AsignaturasController {
 
   @Get()
   @ApiOperation({ summary: 'Listar mis asignaturas' })
+  @ApiOkResponse({ description: 'Lista de asignaturas del usuario autenticado' })
   buscarTodas(@UsuarioActual() usuario: UsuarioAutenticado) {
     return this.asignaturasService.buscarTodas(usuario.id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar una asignatura' })
+  @ApiOkResponse({ description: 'La asignatura solicitada' })
+  @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   buscarUna(
     @Param('id') id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,
@@ -43,6 +56,8 @@ export class AsignaturasController {
   @Post()
   @ApiOperation({ summary: 'Crear una asignatura' })
   @ApiBody({ type: CrearAsignaturaDto })
+  @ApiCreatedResponse({ description: 'Asignatura creada (registra el evento "creada" en el historial)' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o campos de más' })
   crear(
     @Body() datos: CrearAsignaturaDto,
     @UsuarioActual() usuario: UsuarioAutenticado,
@@ -53,6 +68,9 @@ export class AsignaturasController {
   @Put(':id')
   @ApiOperation({ summary: 'Actualizar una asignatura' })
   @ApiBody({ type: CrearAsignaturaDto })
+  @ApiOkResponse({ description: 'Asignatura actualizada (registra el evento "editada" en el historial)' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o campos de más' })
+  @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   actualizar(
     @Param('id') id: string,
     @Body() datos: CrearAsignaturaDto,
@@ -63,6 +81,8 @@ export class AsignaturasController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una asignatura' })
+  @ApiOkResponse({ description: 'Asignatura eliminada (registra el evento "eliminada" en el historial)' })
+  @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   eliminar(
     @Param('id') id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,

@@ -8,7 +8,16 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TareasService } from './tareas.service.js';
 import { CrearTareaDto } from './dto/crear-tarea.dto.js';
 import { ActualizarTareaDto } from './dto/actualizar-tarea.dto.js';
@@ -28,6 +37,9 @@ export class TareasController {
   @Post()
   @ApiOperation({ summary: 'Crear una nueva tarea o evaluación' })
   @ApiBody({ type: CrearTareaDto })
+  @ApiCreatedResponse({ description: 'Tarea creada (registra el evento "creada" en el historial)' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o campos de más' })
+  @ApiNotFoundResponse({ description: 'La asignatura no existe o no pertenece al usuario' })
   crear(
     @Body() datos: CrearTareaDto,
     @UsuarioActual() usuario: UsuarioAutenticado,
@@ -37,12 +49,15 @@ export class TareasController {
 
   @Get()
   @ApiOperation({ summary: 'Listar mis tareas' })
+  @ApiOkResponse({ description: 'Lista de tareas del usuario autenticado' })
   buscarTodas(@UsuarioActual() usuario: UsuarioAutenticado) {
     return this.tareasService.buscarTodas(usuario.id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar una tarea específica' })
+  @ApiOkResponse({ description: 'La tarea solicitada' })
+  @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   buscarUna(
     @Param('id') id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,
@@ -51,8 +66,15 @@ export class TareasController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Actualizar una tarea (ej. marcar como completada)' })
+  @ApiOperation({
+    summary: 'Actualizar una tarea (ej. marcar como completada)',
+    description:
+      'Se envían solo los campos a cambiar. Registra "completada" si completada=true; en otro caso "editada".',
+  })
   @ApiBody({ type: ActualizarTareaDto })
+  @ApiOkResponse({ description: 'Tarea actualizada' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o campos de más' })
+  @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   actualizar(
     @Param('id') id: string,
     @Body() datos: ActualizarTareaDto,
@@ -63,6 +85,8 @@ export class TareasController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una tarea' })
+  @ApiOkResponse({ description: 'Tarea eliminada (registra el evento "eliminada" en el historial)' })
+  @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   eliminar(
     @Param('id') id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,
