@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { UsuariosService } from './usuarios.service.js';
-import { RegistroUsuarioDto } from './dto/registro-usuario.dto/registro-usuario.dto.js';
+import { RegistroUsuarioDto } from './dto/registro-usuario.dto.js';
 
 @Controller('usuarios')
 export class UsuariosController {
