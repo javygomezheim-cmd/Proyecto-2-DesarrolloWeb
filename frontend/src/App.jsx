@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import actividadesIniciales from "./data/actividades.json";
-import asignaturasIniciales from "./data/asignaturas.json";
 import ListaActividadesPage from "./pages/ListaActividadesPage";
 import DetalleActividadPage from "./pages/DetalleActividadPage";
 import NuevaActividadPage from "./pages/NuevaActividadPage";
@@ -10,59 +9,55 @@ import AsignaturaModal from "./components/AsignaturaModal";
 import CalendarioPage from "./pages/Calendariopage.jsx";
 import HistorialPage from "./pages/HistorialPage";
 import LibrosPage from "./pages/LibrosPage.jsx";
+import { obtenerAsignaturas, crearAsignaturaApi, eliminarAsignaturaApi } from "./services/api";
 
 const STORAGE_ACTIVIDADES = "actividades";
-const STORAGE_ASIGNATURAS = "asignaturas";
 
 export default function App() {
   const [vista, setVista] = useState("lista");
   const [actividadId, setActividadId] = useState(null);
-
-  // Estado del modal global de nueva asignatura
   const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
-
-  // ID de asignatura para filtrar al venir desde una tarjeta
   const [filtroAsignaturaId, setFiltroAsignaturaId] = useState(null);
 
-  // 1. Inicialización con localStorage (si no existe, usa los JSON)
+  // Estados remotos para asignaturas y locales para actividades
+  const [asignaturas, setAsignaturas] = useState([]);
+  const [cargandoAsignaturas, setCargandoAsignaturas] = useState(true);
+
   const [actividades, setActividades] = useState(() => {
     const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
-
-    const datos = guardadas
-      ? JSON.parse(guardadas)
-      : actividadesIniciales;
-
+    const datos = guardadas ? JSON.parse(guardadas) : actividadesIniciales;
     return datos.map((actividad) => ({
       ...actividad,
       completada: actividad.completada ?? false,
     }));
   });
 
-  const [asignaturas, setAsignaturas] = useState(() => {
-    const guardadas = localStorage.getItem(STORAGE_ASIGNATURAS);
-    return guardadas ? JSON.parse(guardadas) : asignaturasIniciales;
-  });
+  // Cargar asignaturas desde la API de NestJS al montar
+  useEffect(() => {
+    async function cargarDatosRemotos() {
+      setCargandoAsignaturas(true);
+      const datos = await obtenerAsignaturas();
+      if (datos && datos.length > 0) {
+        setAsignaturas(datos);
+      }
+      setCargandoAsignaturas(false);
+    }
+    cargarDatosRemotos();
+  }, []);
 
-  // 2. Guardar automáticamente en localStorage cuando haya cambios
   useEffect(() => {
     localStorage.setItem(STORAGE_ACTIVIDADES, JSON.stringify(actividades));
   }, [actividades]);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_ASIGNATURAS, JSON.stringify(asignaturas));
-  }, [asignaturas]);
-
-  // Navegación
   function navegar(nuevaVista, id = null) {
     setVista(nuevaVista);
     if (nuevaVista === "lista") {
-      setFiltroAsignaturaId(id); // Guarda el id de la materia si viene de la tarjeta, o null si viene del sidebar
+      setFiltroAsignaturaId(id);
     } else {
       setActividadId(id);
     }
   }
 
-  // --- Funciones para Actividades ---
   function agregarActividad(datos) {
     setActividades([...actividades, { ...datos, id: Date.now() }]);
   }
@@ -83,11 +78,11 @@ export default function App() {
         a.id !== idActividad
           ? a
           : {
-            ...a,
-            subtareas: a.subtareas.map((s) =>
-              s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
-            ),
-          },
+              ...a,
+              subtareas: a.subtareas.map((s) =>
+                s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
+              ),
+            },
       ),
     );
   }
@@ -95,24 +90,29 @@ export default function App() {
   function toggleCompletada(id) {
     setActividades(
       actividades.map((a) =>
-        a.id === id
-          ? { ...a, completada: !a.completada }
-          : a,
+        a.id === id ? { ...a, completada: !a.completada } : a,
       ),
     );
   }
-  // --- Funciones para Asignaturas ---
-  function agregarAsignatura(datos) {
-    setAsignaturas([...asignaturas, { ...datos, id: datos.id || Date.now() }]);
+
+  // --- Funciones conectadas a la API del Backend ---
+  async function agregarAsignatura(datos) {
+    try {
+      const nuevaCreada = await crearAsignaturaApi(datos);
+      setAsignaturas([...asignaturas, nuevaCreada]);
+    } catch (e) {
+      alert("No se pudo guardar la asignatura en el servidor backend.");
+    }
   }
 
-  function eliminarAsignaturas(idsAEliminar) {
+  async function eliminarAsignaturas(idsAEliminar) {
     const ids = Array.isArray(idsAEliminar) ? idsAEliminar : [idsAEliminar];
 
-    // 1. Eliminamos las asignaturas seleccionadas
-    setAsignaturas((actuales) => actuales.filter((a) => !ids.includes(a.id)));
+    for (const id of ids) {
+      await eliminarAsignaturaApi(id);
+    }
 
-    // 2. Eliminamos en cascada todas las actividades asociadas a esas asignaturas
+    setAsignaturas((actuales) => actuales.filter((a) => !ids.includes(a.id)));
     setActividades((actuales) =>
       actuales.filter((actividad) => !ids.includes(actividad.asignaturaId)),
     );
@@ -127,63 +127,70 @@ export default function App() {
       />
 
       <main className="main-content">
-        {vista === "lista" && (
-          <ListaActividadesPage
-            key={filtroAsignaturaId ?? "todas"}
-            actividades={actividades}
-            asignaturas={asignaturas}
-            filtroAsignaturaInicial={filtroAsignaturaId}
-            navegar={navegar}
-          />
-        )}
+        {cargandoAsignaturas ? (
+          <div className="text-center py-5 mt-5">
+            <div className="spinner-border text-primary" role="status"></div>
+            <p className="text-muted mt-2">Conectando con el servidor backend...</p>
+          </div>
+        ) : (
+          <>
+            {vista === "lista" && (
+              <ListaActividadesPage
+                key={filtroAsignaturaId ?? "todas"}
+                actividades={actividades}
+                asignaturas={asignaturas}
+                filtroAsignaturaInicial={filtroAsignaturaId}
+                navegar={navegar}
+              />
+            )}
 
-        {vista === "detalle" && (
-          <DetalleActividadPage
-            actividadId={actividadId}
-            actividades={actividades}
-            asignaturas={asignaturas}
-            toggleSubtarea={toggleSubtarea}
-            toggleCompletada={toggleCompletada}
-            eliminarActividad={eliminarActividad}
-            navegar={navegar}
-          />
-        )}
+            {vista === "detalle" && (
+              <DetalleActividadPage
+                actividadId={actividadId}
+                actividades={actividades}
+                asignaturas={asignaturas}
+                toggleSubtarea={toggleSubtarea}
+                toggleCompletada={toggleCompletada}
+                eliminarActividad={eliminarActividad}
+                navegar={navegar}
+              />
+            )}
 
-        {vista === "nueva" && (
-          <NuevaActividadPage
-            actividadId={actividadId}
-            actividades={actividades}
-            asignaturas={asignaturas}
-            agregarActividad={agregarActividad}
-            actualizarActividad={actualizarActividad}
-            navegar={navegar}
-          />
-        )}
+            {vista === "nueva" && (
+              <NuevaActividadPage
+                actividadId={actividadId}
+                actividades={actividades}
+                asignaturas={asignaturas}
+                agregarActividad={agregarActividad}
+                actualizarActividad={actualizarActividad}
+                navegar={navegar}
+              />
+            )}
 
-        {vista === "asignaturas" && (
-          <AsignaturasPage
-            asignaturas={asignaturas}
-            actividades={actividades}
-            eliminarAsignaturas={eliminarAsignaturas}
-            abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
-            navegar={navegar}
-          />
-        )}
+            {vista === "asignaturas" && (
+              <AsignaturasPage
+                asignaturas={asignaturas}
+                actividades={actividades}
+                eliminarAsignaturas={eliminarAsignaturas}
+                abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
+                navegar={navegar}
+              />
+            )}
 
-        {vista === "calendario" && <CalendarioPage actividades={actividades} />}
-        {vista === "historial" && (
-          <HistorialPage
-            actividades={actividades}
-            asignaturas={asignaturas}
-            navegar={navegar}
-          />)}
+            {vista === "calendario" && <CalendarioPage actividades={actividades} />}
+            {vista === "historial" && (
+              <HistorialPage
+                actividades={actividades}
+                asignaturas={asignaturas}
+                navegar={navegar}
+              />
+            )}
 
-        {vista === "libros" && (
-          <LibrosPage asignaturas={asignaturas} />
+            {vista === "libros" && <LibrosPage asignaturas={asignaturas} />}
+          </>
         )}
       </main>
 
-      {/* Modal global accesible desde cualquier botón */}
       <AsignaturaModal
         visible={mostrarModalAsignatura}
         alCerrar={() => setMostrarModalAsignatura(false)}
