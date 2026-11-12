@@ -31,7 +31,7 @@ export default function FormularioActividad({
 
   function handleSubmit(e) {
     e.preventDefault();
-    onGuardar({ ...formulario, asignaturaId: Number(formulario.asignaturaId) });
+    onGuardar({ ...formulario });
   }
 
   return (
