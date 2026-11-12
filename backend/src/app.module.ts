@@ -1,3 +1,4 @@
+
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,12 +10,13 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
 import { AsignaturasModule } from './asignaturas/asignaturas.module.js';
 import { TareasModule } from './tareas/tareas.module.js';
 import { HistorialModule } from './historial/historial.module.js';
+import { AuthModule } from './auth/auth.module.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '../.env',
+      envFilePath: ['.env', '../.env'],
     }),
 
     // Conexión PostgreSQL
@@ -43,14 +45,12 @@ import { HistorialModule } from './historial/historial.module.js';
     }),
 
     UsuariosModule,
-
     AsignaturasModule,
-
     TareasModule,
-
     HistorialModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

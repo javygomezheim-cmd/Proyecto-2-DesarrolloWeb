@@ -18,6 +18,7 @@ async function bootstrap() {
     .setTitle('Agenda Académica API')
     .setDescription('API REST de la agenda académica personal')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
 
