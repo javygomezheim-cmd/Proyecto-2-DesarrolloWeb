@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +7,8 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 import { AsignaturasModule } from './asignaturas/asignaturas.module.js';
-
+import { TareasModule } from './tareas/tareas.module.js';
+import { HistorialModule } from './historial/historial.module.js';
 
 @Module({
   imports: [
@@ -45,6 +45,10 @@ import { AsignaturasModule } from './asignaturas/asignaturas.module.js';
     UsuariosModule,
 
     AsignaturasModule,
+
+    TareasModule,
+
+    HistorialModule,
   ],
   controllers: [AppController],
   providers: [AppService],
