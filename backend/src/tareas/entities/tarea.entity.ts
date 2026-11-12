@@ -19,7 +19,7 @@ export class Tarea {
   @Column({ default: false })
   completada: boolean;
 
-  // Maneja las subtareas directamente como exige tu frontend
+  // Maneja las subtareas directamente
   @Column({ type: 'jsonb', nullable: true, default: [] })
   subtareas: any[];
 

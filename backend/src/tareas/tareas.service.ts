@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Tarea } from './entities/tarea.entity.js';
 import { Asignatura } from '../asignaturas/entities/asignatura.entity.js';
 import { CrearTareaDto } from './dto/crear-tarea.dto.js';
+import { HistorialService } from '../historial/historial.service.js';
 
 @Injectable()
 export class TareasService {
@@ -12,6 +13,7 @@ export class TareasService {
     private readonly tareasRepository: Repository<Tarea>,
     @InjectRepository(Asignatura)
     private readonly asignaturasRepository: Repository<Asignatura>,
+    private readonly historialService: HistorialService, 
   ) {}
 
   async crear(datos: CrearTareaDto, usuarioId: string): Promise<Tarea> {
@@ -33,20 +35,30 @@ export class TareasService {
       usuario: { id: usuarioId },
     });
 
-    return this.tareasRepository.save(nuevaTarea);
+    const tareaGuardada = await this.tareasRepository.save(nuevaTarea);
+
+    await this.historialService.registrarEvento({
+      usuarioId,
+      accion: 'creada',
+      entidad: 'tarea',
+      entidadId: tareaGuardada.id,
+      titulo: tareaGuardada.titulo,
+    });
+
+    return tareaGuardada;
   }
 
   async buscarTodas(usuarioId: string): Promise<Tarea[]> {
     return this.tareasRepository.find({
       where: { usuario: { id: usuarioId } },
-      relations: { asignatura: true }, // <-- Cambio aquí
+      relations: { asignatura: true },
     });
   }
 
   async buscarUna(id: string, usuarioId: string): Promise<Tarea> {
     const tarea = await this.tareasRepository.findOne({
       where: { id, usuario: { id: usuarioId } },
-      relations: { asignatura: true }, // <-- Cambio aquí
+      relations: { asignatura: true },
     });
 
     if (!tarea) {
@@ -59,14 +71,43 @@ export class TareasService {
   async actualizar(id: string, datos: Partial<CrearTareaDto>, usuarioId: string): Promise<Tarea> {
     const tarea = await this.buscarUna(id, usuarioId);
 
-    // Actualizamos solo los campos que vengan en la petición
     Object.assign(tarea, datos);
+    if (datos.fechaLimite) {
+      tarea.fechaLimite = new Date(datos.fechaLimite);
+    }
 
-    return this.tareasRepository.save(tarea);
+    const tareaActualizada = await this.tareasRepository.save(tarea);
+
+    // Determinamos si cambió a completada o solo fue editada
+    const accion = datos.completada === true ? 'completada' : 'editada';
+
+    // Registrar evento en MongoDB al actualizar/completar tarea
+    await this.historialService.registrarEvento({
+      usuarioId,
+      accion,
+      entidad: 'tarea',
+      entidadId: tareaActualizada.id,
+      titulo: tareaActualizada.titulo,
+    });
+
+    return tareaActualizada;
   }
 
   async eliminar(id: string, usuarioId: string): Promise<void> {
     const tarea = await this.buscarUna(id, usuarioId);
+    
+    const entidadId = tarea.id;
+    const titulo = tarea.titulo;
+
     await this.tareasRepository.remove(tarea);
+
+    // Registrar evento en MongoDB al eliminar tarea
+    await this.historialService.registrarEvento({
+      usuarioId,
+      accion: 'eliminada',
+      entidad: 'tarea',
+      entidadId,
+      titulo,
+    });
   }
 }
