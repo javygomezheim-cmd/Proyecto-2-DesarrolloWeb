@@ -1,53 +1,32 @@
 import { useState, useEffect } from "react";
 import { obtenerFeriados } from "../services/publicApi";
-import actividadesIniciales from "../data/actividades.json";
 
-export default function Calendariopage() {
+export default function Calendariopage({ actividades = [] }) {
   const [fechaActual, setFechaActual] = useState(new Date());
   const [feriados, setFeriados] = useState([]);
-  const [actividades, setActividades] = useState([]);
   const [cargando, setCargando] = useState(true);
 
   const año = fechaActual.getFullYear();
   const mes = fechaActual.getMonth();
 
-  const cargarActividades = () => {
-    const actividadesGuardadas = localStorage.getItem("actividades");
-    if (actividadesGuardadas) {
-      try {
-        setActividades(JSON.parse(actividadesGuardadas));
-      } catch (e) {
-        console.error("Error al parsear actividades de localStorage", e);
-        setActividades(actividadesIniciales);
-      }
-    } else {
-      setActividades(actividadesIniciales);
-      localStorage.setItem("actividades", JSON.stringify(actividadesIniciales));
-    }
-  };
-
   useEffect(() => {
     let montado = true;
 
-    async function cargarDatos() {
+    async function cargarFeriados() {
       setCargando(true);
-      const datosAPI = await obtenerFeriados();
-      
-      if (montado) {
-        setFeriados(datosAPI);
-        cargarActividades();
-        setCargando(false);
+      try {
+        const datosAPI = await obtenerFeriados();
+        if (montado) setFeriados(datosAPI);
+      } catch {
+        if (montado) setFeriados([]);
+      } finally {
+        if (montado) setCargando(false);
       }
     }
 
-    cargarDatos();
-
-    const manejarCambioStorage = () => cargarActividades();
-    window.addEventListener("storage", manejarCambioStorage);
-
+    cargarFeriados();
     return () => {
       montado = false;
-      window.removeEventListener("storage", manejarCambioStorage);
     };
   }, []);
 

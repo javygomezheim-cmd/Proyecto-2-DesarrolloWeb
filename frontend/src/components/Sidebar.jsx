@@ -1,5 +1,5 @@
-export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
-  return (
+export default function Sidebar({ vista, navegar, abrirModalAsignatura, onSalir }) {
+    return (
     <aside
       className="bg-dark text-white d-flex flex-column p-4"
     >
@@ -34,7 +34,7 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
         >
           📅 Calendario
         </button>
-        
+
         <button
           type="button"
           className={`btn text-start ${vista === "historial" ? "btn-primary" : "btn-outline-light"
@@ -47,8 +47,8 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
         <button
           type="button"
           className={`btn text-start ${vista === "libros"
-              ? "btn-primary"
-              : "btn-outline-light"
+            ? "btn-primary"
+            : "btn-outline-light"
             }`}
           onClick={() => navegar("libros")}
         >
@@ -78,6 +78,12 @@ export default function Sidebar({ vista, navegar, abrirModalAsignatura }) {
           </button>
         </div>
       </div>
+      <div className="mt-auto">
+        <hr />
+          <button type="button" className="btn btn-outline-danger" onClick={onSalir}>
+            Cerrar sesión
+          </button>
+        </div>
     </aside>
   );
 }

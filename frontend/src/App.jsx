@@ -1,4 +1,3 @@
-// Reemplazo en frontend/src/App.jsx (fragmento clave de carga y estados)
 import { useState, useEffect } from "react";
 import ListaActividadesPage from "./pages/ListaActividadesPage";
 import DetalleActividadPage from "./pages/DetalleActividadPage";
@@ -13,6 +12,9 @@ import {
   obtenerAsignaturas, crearAsignaturaApi, eliminarAsignaturaApi,
   obtenerActividadesApi, crearActividadApi, actualizarActividadApi, eliminarActividadApi 
 } from "./services/api";
+import LoginPage from "./pages/LoginPage";
+import { obtenerUsuarioGuardado, cerrarSesion } from "./services/api";
+
 
 export default function App() {
   const [vista, setVista] = useState("lista");
@@ -24,28 +26,46 @@ export default function App() {
   const [actividades, setActividades] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorApp, setErrorApp] = useState(null);
+  const [usuario, setUsuario] = useState(obtenerUsuarioGuardado());
+
 
   // Cargar datos remotos al iniciar
-  useEffect(() => {
-    async function cargarDatos() {
-      try {
-        setCargando(true);
-        setErrorApp(null);
-        const [dataAsignaturas, dataActividades] = await Promise.all([
-          obtenerAsignaturas(),
-          obtenerActividadesApi()
-        ]);
-        setAsignaturas(dataAsignaturas);
-        setActividades(dataActividades);
-      } catch (err) {
-        console.error(err);
-        setErrorApp("No se pudo conectar con el servidor backend. Verifica que esté encendido.");
-      } finally {
-        setCargando(false);
-      }
+ useEffect(() => {
+  if (!usuario) return;
+  async function cargarDatos() {
+    try {
+      setCargando(true);
+      setErrorApp(null);
+      const [dataAsignaturas, dataActividades] = await Promise.all([
+        obtenerAsignaturas(),
+        obtenerActividadesApi(),
+      ]);
+      setAsignaturas(dataAsignaturas);
+      setActividades(dataActividades);
+    } catch (err) {
+      console.error(err);
+      setErrorApp(err.message || "No se pudo cargar la información.");
+    } finally {
+      setCargando(false);
     }
-    cargarDatos();
-  }, []);
+  }
+  cargarDatos();
+}, [usuario]);
+
+
+useEffect(() => {
+  const alExpirar = () => setUsuario(null);
+  window.addEventListener("sesion-expirada", alExpirar);
+  return () => window.removeEventListener("sesion-expirada", alExpirar);
+}, []);
+
+function salir() {
+  cerrarSesion();
+  setUsuario(null);
+  setAsignaturas([]);
+  setActividades([]);
+  setVista("lista");
+}
 
   function navegar(nuevaVista, id = null) {
     setVista(nuevaVista);
@@ -125,12 +145,15 @@ export default function App() {
     }
   }
 
+  if (!usuario) return <LoginPage onLogin={setUsuario} />;
+
   return (
     <div className="d-flex flex-column flex-md-row min-vh-100">
       <Sidebar
         vista={vista}
         navegar={navegar}
         abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
+        onSalir={salir}
       />
 
       <main className="main-content">
