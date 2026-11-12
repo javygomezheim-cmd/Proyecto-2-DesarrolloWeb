@@ -1,5 +1,5 @@
+// Reemplazo en frontend/src/App.jsx (fragmento clave de carga y estados)
 import { useState, useEffect } from "react";
-import actividadesIniciales from "./data/actividades.json";
 import ListaActividadesPage from "./pages/ListaActividadesPage";
 import DetalleActividadPage from "./pages/DetalleActividadPage";
 import NuevaActividadPage from "./pages/NuevaActividadPage";
@@ -9,9 +9,10 @@ import AsignaturaModal from "./components/AsignaturaModal";
 import CalendarioPage from "./pages/Calendariopage.jsx";
 import HistorialPage from "./pages/HistorialPage";
 import LibrosPage from "./pages/LibrosPage.jsx";
-import { obtenerAsignaturas, crearAsignaturaApi, eliminarAsignaturaApi } from "./services/api";
-
-const STORAGE_ACTIVIDADES = "actividades";
+import { 
+  obtenerAsignaturas, crearAsignaturaApi, eliminarAsignaturaApi,
+  obtenerActividadesApi, crearActividadApi, actualizarActividadApi, eliminarActividadApi 
+} from "./services/api";
 
 export default function App() {
   const [vista, setVista] = useState("lista");
@@ -19,35 +20,32 @@ export default function App() {
   const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
   const [filtroAsignaturaId, setFiltroAsignaturaId] = useState(null);
 
-  // Estados remotos para asignaturas y locales para actividades
   const [asignaturas, setAsignaturas] = useState([]);
-  const [cargandoAsignaturas, setCargandoAsignaturas] = useState(true);
+  const [actividades, setActividades] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [errorApp, setErrorApp] = useState(null);
 
-  const [actividades, setActividades] = useState(() => {
-    const guardadas = localStorage.getItem(STORAGE_ACTIVIDADES);
-    const datos = guardadas ? JSON.parse(guardadas) : actividadesIniciales;
-    return datos.map((actividad) => ({
-      ...actividad,
-      completada: actividad.completada ?? false,
-    }));
-  });
-
-  // Cargar asignaturas desde la API de NestJS al montar
+  // Cargar datos remotos al iniciar
   useEffect(() => {
-    async function cargarDatosRemotos() {
-      setCargandoAsignaturas(true);
-      const datos = await obtenerAsignaturas();
-      if (datos && datos.length > 0) {
-        setAsignaturas(datos);
+    async function cargarDatos() {
+      try {
+        setCargando(true);
+        setErrorApp(null);
+        const [dataAsignaturas, dataActividades] = await Promise.all([
+          obtenerAsignaturas(),
+          obtenerActividadesApi()
+        ]);
+        setAsignaturas(dataAsignaturas);
+        setActividades(dataActividades);
+      } catch (err) {
+        console.error(err);
+        setErrorApp("No se pudo conectar con el servidor backend. Verifica que esté encendido.");
+      } finally {
+        setCargando(false);
       }
-      setCargandoAsignaturas(false);
     }
-    cargarDatosRemotos();
+    cargarDatos();
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_ACTIVIDADES, JSON.stringify(actividades));
-  }, [actividades]);
 
   function navegar(nuevaVista, id = null) {
     setVista(nuevaVista);
@@ -58,44 +56,51 @@ export default function App() {
     }
   }
 
-  function agregarActividad(datos) {
-    setActividades([...actividades, { ...datos, id: Date.now() }]);
+  async function agregarActividad(datos) {
+    try {
+      const nueva = await crearActividadApi(datos);
+      setActividades([...actividades, nueva]);
+    } catch (err) {
+      alert("Error al crear la actividad en el servidor.");
+    }
   }
 
-  function actualizarActividad(id, cambios) {
-    setActividades(
-      actividades.map((a) => (a.id === id ? { ...a, ...cambios } : a)),
+  async function actualizarActividad(id, cambios) {
+    try {
+      const actualizada = await actualizarActividadApi(id, cambios);
+      setActividades(actividades.map((a) => (a.id === id ? actualizada : a)));
+    } catch (err) {
+      alert("Error al actualizar la actividad.");
+    }
+  }
+
+  async function eliminarActividad(id) {
+    try {
+      await eliminarActividadApi(id);
+      setActividades(actividades.filter((a) => a.id !== id));
+    } catch (err) {
+      alert("Error al eliminar la actividad.");
+    }
+  }
+
+  async function toggleSubtarea(idActividad, idSubtarea) {
+    const act = actividades.find(a => a.id === idActividad);
+    if (!act) return;
+
+    const nuevasSubtareas = act.subtareas.map(s => 
+      s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s
     );
+
+    await actualizarActividad(idActividad, { subtareas: nuevasSubtareas });
   }
 
-  function eliminarActividad(id) {
-    setActividades(actividades.filter((a) => a.id !== id));
+  async function toggleCompletada(id) {
+    const act = actividades.find(a => a.id === id);
+    if (!act) return;
+
+    await actualizarActividad(id, { completada: !act.completada });
   }
 
-  function toggleSubtarea(idActividad, idSubtarea) {
-    setActividades(
-      actividades.map((a) =>
-        a.id !== idActividad
-          ? a
-          : {
-              ...a,
-              subtareas: a.subtareas.map((s) =>
-                s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
-              ),
-            },
-      ),
-    );
-  }
-
-  function toggleCompletada(id) {
-    setActividades(
-      actividades.map((a) =>
-        a.id === id ? { ...a, completada: !a.completada } : a,
-      ),
-    );
-  }
-
-  // --- Funciones conectadas a la API del Backend ---
   async function agregarAsignatura(datos) {
     try {
       const nuevaCreada = await crearAsignaturaApi(datos);
@@ -107,15 +112,17 @@ export default function App() {
 
   async function eliminarAsignaturas(idsAEliminar) {
     const ids = Array.isArray(idsAEliminar) ? idsAEliminar : [idsAEliminar];
-
-    for (const id of ids) {
-      await eliminarAsignaturaApi(id);
+    try {
+      for (const id of ids) {
+        await eliminarAsignaturaApi(id);
+      }
+      setAsignaturas((actuales) => actuales.filter((a) => !ids.includes(a.id)));
+      setActividades((actuales) =>
+        actuales.filter((actividad) => !ids.includes(actividad.asignatura?.id)),
+      );
+    } catch (err) {
+      alert("Error al eliminar asignaturas.");
     }
-
-    setAsignaturas((actuales) => actuales.filter((a) => !ids.includes(a.id)));
-    setActividades((actuales) =>
-      actuales.filter((actividad) => !ids.includes(actividad.asignaturaId)),
-    );
   }
 
   return (
@@ -127,10 +134,14 @@ export default function App() {
       />
 
       <main className="main-content">
-        {cargandoAsignaturas ? (
+        {cargando ? (
           <div className="text-center py-5 mt-5">
             <div className="spinner-border text-primary" role="status"></div>
-            <p className="text-muted mt-2">Conectando con el servidor backend...</p>
+            <p className="text-muted mt-2">Cargando datos desde el servidor...</p>
+          </div>
+        ) : errorApp ? (
+          <div className="p-4">
+            <div className="alert alert-danger">{errorApp}</div>
           </div>
         ) : (
           <>
@@ -143,7 +154,6 @@ export default function App() {
                 navegar={navegar}
               />
             )}
-
             {vista === "detalle" && (
               <DetalleActividadPage
                 actividadId={actividadId}
@@ -155,7 +165,6 @@ export default function App() {
                 navegar={navegar}
               />
             )}
-
             {vista === "nueva" && (
               <NuevaActividadPage
                 actividadId={actividadId}
@@ -166,7 +175,6 @@ export default function App() {
                 navegar={navegar}
               />
             )}
-
             {vista === "asignaturas" && (
               <AsignaturasPage
                 asignaturas={asignaturas}
@@ -176,16 +184,13 @@ export default function App() {
                 navegar={navegar}
               />
             )}
-
             {vista === "calendario" && <CalendarioPage actividades={actividades} />}
             {vista === "historial" && (
               <HistorialPage
-                actividades={actividades}
                 asignaturas={asignaturas}
                 navegar={navegar}
               />
             )}
-
             {vista === "libros" && <LibrosPage asignaturas={asignaturas} />}
           </>
         )}
