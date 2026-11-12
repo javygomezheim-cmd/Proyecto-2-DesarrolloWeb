@@ -4,3 +4,8 @@ export const UsuarioActual = createParamDecorator(
   (_data: unknown, context: ExecutionContext) =>
     context.switchToHttp().getRequest().usuario,
 );
+
+export interface UsuarioAutenticado {
+  id: string;
+  correo: string;
+}

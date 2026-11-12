@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Get,
@@ -7,34 +6,38 @@ import {
   Delete,
   Param,
   Body,
-  Query,
+  UseGuards,
 } from '@nestjs/common';
-
-import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 import { AsignaturasService } from './asignaturas.service.js';
 import { CrearAsignaturaDto } from './dto/crear-asignatura.dto.js';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import {
+  UsuarioActual,
+  type UsuarioAutenticado,
+} from '../auth/usuario-actual.decorator.js';
 
 @ApiTags('Asignaturas')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('asignaturas')
 export class AsignaturasController {
-  constructor(
-    private readonly asignaturasService: AsignaturasService,
-  ) {}
+  constructor(private readonly asignaturasService: AsignaturasService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar asignaturas de un usuario' })
-  buscarTodas(@Query('usuarioId') usuarioId: string) {
-    return this.asignaturasService.buscarTodas(usuarioId);
+  @ApiOperation({ summary: 'Listar mis asignaturas' })
+  buscarTodas(@UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.asignaturasService.buscarTodas(usuario.id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar una asignatura' })
   buscarUna(
     @Param('id') id: string,
-    @Query('usuarioId') usuarioId: string,
+    @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
-    return this.asignaturasService.buscarUna(id, usuarioId);
+    return this.asignaturasService.buscarUna(id, usuario.id);
   }
 
   @Post()
@@ -42,9 +45,9 @@ export class AsignaturasController {
   @ApiBody({ type: CrearAsignaturaDto })
   crear(
     @Body() datos: CrearAsignaturaDto,
-    @Query('usuarioId') usuarioId: string,
+    @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
-    return this.asignaturasService.crear(datos, usuarioId);
+    return this.asignaturasService.crear(datos, usuario.id);
   }
 
   @Put(':id')
@@ -53,17 +56,17 @@ export class AsignaturasController {
   actualizar(
     @Param('id') id: string,
     @Body() datos: CrearAsignaturaDto,
-    @Query('usuarioId') usuarioId: string,
+    @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
-    return this.asignaturasService.actualizar(id, datos, usuarioId);
+    return this.asignaturasService.actualizar(id, datos, usuario.id);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una asignatura' })
   eliminar(
     @Param('id') id: string,
-    @Query('usuarioId') usuarioId: string,
+    @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
-    return this.asignaturasService.eliminar(id, usuarioId);
+    return this.asignaturasService.eliminar(id, usuario.id);
   }
 }

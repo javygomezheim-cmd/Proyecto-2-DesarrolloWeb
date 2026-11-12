@@ -1,6 +1,6 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -9,19 +9,21 @@ import {
 
 import { HistorialService } from './historial.service.js';
 import { HistorialActividad } from './schemas/historial-actividad.schema.js';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import {
+  UsuarioActual,
+  type UsuarioAutenticado,
+} from '../auth/usuario-actual.decorator.js';
 
 @ApiTags('Historial')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('historial')
 export class HistorialController {
   constructor(private readonly historialService: HistorialService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar el historial de actividad de un usuario' })
-  @ApiQuery({
-    name: 'usuarioId',
-    required: true,
-    description: 'Id del usuario cuyo historial se quiere ver',
-  })
+  @ApiOperation({ summary: 'Listar mi historial de actividad' })
   @ApiQuery({
     name: 'entidad',
     required: false,
@@ -35,21 +37,16 @@ export class HistorialController {
     example: 50,
   })
   @ApiOkResponse({
-    description: 'Eventos del usuario, del más reciente al más antiguo',
+    description: 'Mis eventos, del más reciente al más antiguo',
     type: [HistorialActividad],
   })
-  @ApiBadRequestResponse({ description: 'Falta el parámetro usuarioId' })
   listar(
-    @Query('usuarioId') usuarioId: string,
+    @UsuarioActual() usuario: UsuarioAutenticado,
     @Query('entidad') entidad?: string,
     @Query('limite') limite?: string,
   ) {
-    if (!usuarioId) {
-      throw new BadRequestException('usuarioId es obligatorio');
-    }
-
     return this.historialService.listar(
-      usuarioId,
+      usuario.id,
       entidad,
       Number(limite) || undefined,
     );
