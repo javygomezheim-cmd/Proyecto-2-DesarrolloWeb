@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CLASE_PRIORIDAD, ETIQUETA_ESTADO } from "../constants/tareas";
 import AsignaturasEstadisticas from "../components/AsignaturasEstadisticas";
+import { obtenerHistorialApi } from "../services/api";
 
 export default function ListaActividadesPage({
   actividades,
@@ -18,6 +19,58 @@ export default function ListaActividadesPage({
   );
 
   const [busqueda, setBusqueda] = useState("");
+  const [fechasCompletadas, setFechasCompletadas] = useState({});
+  const [cargandoCompletadas, setCargandoCompletadas] = useState(false);
+  const [errorCompletadas, setErrorCompletadas] = useState("");
+
+  useEffect(() => {
+    if (filtro !== "completadas") return;
+
+    let cancelado = false;
+
+    async function cargarFechasCompletadas() {
+      try {
+        setCargandoCompletadas(true);
+        setErrorCompletadas("");
+
+        const eventos = await obtenerHistorialApi("", 1000);
+        const fechas = {};
+
+        eventos.forEach((evento) => {
+          if (evento.accion !== "completada" || !evento.entidadId) return;
+
+          const fechaAnterior = fechas[evento.entidadId];
+
+          if (
+            !fechaAnterior ||
+            new Date(evento.fecha) > new Date(fechaAnterior)
+          ) {
+            fechas[evento.entidadId] = evento.fecha;
+          }
+        });
+
+        if (!cancelado) {
+          setFechasCompletadas(fechas);
+        }
+      } catch (error) {
+        if (!cancelado) {
+          setErrorCompletadas(
+            error.message || "No se pudieron cargar las fechas de finalización.",
+          );
+        }
+      } finally {
+        if (!cancelado) {
+          setCargandoCompletadas(false);
+        }
+      }
+    }
+
+    cargarFechasCompletadas();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [filtro]);
 
   function quitarTildes(texto) {
     return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -26,8 +79,14 @@ export default function ListaActividadesPage({
   const ahora = new Date();
 
   const actividadesFiltradas = actividades.filter((actividad) => {
-    // Las actividades completadas no aparecen en la lista principal
-    if (actividad.completada) {
+    const estaCompletada =
+      actividad.completada || actividad.estado === "completada";
+
+    if (filtro === "completadas") {
+      return estaCompletada;
+    }
+
+    if (estaCompletada) {
       return false;
     }
 
@@ -73,6 +132,15 @@ export default function ListaActividadesPage({
     return true;
   });
 
+  const actividadesParaMostrar =
+    filtro === "completadas"
+      ? [...actividadesFiltradas].sort(
+        (a, b) =>
+          (Date.parse(fechasCompletadas[b.id] || "") || 0) -
+          (Date.parse(fechasCompletadas[a.id] || "") || 0),
+      )
+      : actividadesFiltradas;
+
   return (
     <div className="row align-items-start mb-4 px-3 pt-3 w-100 m-0">
       <div className="col-12 col-md-7">
@@ -96,63 +164,65 @@ export default function ListaActividadesPage({
       <div className="col-12 mt-3">
         <AsignaturasEstadisticas asignaturas={asignaturas} actividades={actividades} />
       </div>
-      
+
       <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "todas" ? "btn-primary" : "filtro-boton"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "todas" ? "btn-primary" : "filtro-boton"
+            }`}
           onClick={() => setFiltro("todas")}
         >
           Todas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "urgente" ? "btn-primary" : "filtro-boton"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "urgente" ? "btn-primary" : "filtro-boton"
+            }`}
           onClick={() => setFiltro("urgente")}
         >
           Urgente
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "semana" ? "btn-primary" : "filtro-boton"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "semana" ? "btn-primary" : "filtro-boton"
+            }`}
           onClick={() => setFiltro("semana")}
         >
           Próxima
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "normal" ? "btn-primary" : "filtro-boton"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "normal" ? "btn-primary" : "filtro-boton"
+            }`}
           onClick={() => setFiltro("normal")}
         >
           Normal
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "atrasadas" ? "btn-primary" : "filtro-boton"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "atrasadas" ? "btn-primary" : "filtro-boton"
+            }`}
           onClick={() => setFiltro("atrasadas")}
         >
           Atrasadas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${
-            filtro === "asignaturas" ? "btn-primary" : "filtro-boton"
-          }`}
+          className={`btn btn-sm rounded-pill ${filtro === "asignaturas" ? "btn-primary" : "filtro-boton"
+            }`}
           onClick={() => {
             setFiltro("asignaturas");
             setAsignaturaSeleccionada(null);
           }}
         >
           Asignaturas
+        </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${filtro === "completadas" ? "btn-primary" : "filtro-boton"
+            }`}
+          onClick={() => setFiltro("completadas")}
+        >
+          Completadas
         </button>
       </div>
 
@@ -191,12 +261,16 @@ export default function ListaActividadesPage({
                   ))}
                 </div>
               </div>
-            ) : actividadesFiltradas.length === 0 ? (
+            ) : cargandoCompletadas && filtro === "completadas" ? (
+              <p className="text-muted mt-4">Cargando actividades completadas...</p>
+            ) : errorCompletadas && filtro === "completadas" ? (
+              <p className="text-danger mt-4">{errorCompletadas}</p>
+            ) : actividadesParaMostrar.length === 0 ? (
               <p className="text-muted mt-4">
                 No hay actividades para este filtro
               </p>
             ) : (
-              actividadesFiltradas.map((actividad) => {
+              actividadesParaMostrar.map((actividad) => {
                 const asignatura = asignaturas.find(
                   (a) => a.id === actividad.asignaturaId,
                 );
@@ -261,9 +335,8 @@ export default function ListaActividadesPage({
                             {textoPrioridad}
                           </span>
                           <span
-                            className={`badge rounded-pill ${
-                              CLASE_PRIORIDAD[actividad.prioridad] ?? "bg-secondary"
-                            }`}
+                            className={`badge rounded-pill ${CLASE_PRIORIDAD[actividad.prioridad] ?? "bg-secondary"
+                              }`}
                           >
                             Prioridad {actividad.prioridad ?? "media"}
                           </span>
@@ -302,7 +375,7 @@ export default function ListaActividadesPage({
               <h5 className="fw-bold mb-1">Actividades</h5>
 
               <h2 className="fw-bold mb-1">
-                {actividadesFiltradas.length}
+                {actividadesParaMostrar.length}
               </h2>
 
               <p className="mb-0 text-muted">

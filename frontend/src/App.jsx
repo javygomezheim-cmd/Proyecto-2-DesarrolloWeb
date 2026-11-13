@@ -8,13 +8,13 @@ import AsignaturaModal from "./components/AsignaturaModal";
 import CalendarioPage from "./pages/Calendariopage.jsx";
 import HistorialPage from "./pages/HistorialPage";
 import LibrosPage from "./pages/LibrosPage.jsx";
+import DashboardPage from "./pages/DashboardPage";
 import {
   obtenerAsignaturas, crearAsignaturaApi, actualizarAsignaturaApi, eliminarAsignaturaApi,
   obtenerActividadesApi, crearActividadApi, actualizarActividadApi, eliminarActividadApi,
   obtenerUsuarioGuardado, cerrarSesion
 } from "./services/api";
 import LoginPage from "./pages/LoginPage";
-
 
 export default function App() {
   const [vista, setVista] = useState("lista");
@@ -28,7 +28,6 @@ export default function App() {
   const [cargando, setCargando] = useState(true);
   const [errorApp, setErrorApp] = useState(null);
   const [usuario, setUsuario] = useState(obtenerUsuarioGuardado());
-
 
   // Cargar datos remotos al iniciar
   useEffect(() => {
@@ -52,7 +51,6 @@ export default function App() {
     }
     cargarDatos();
   }, [usuario]);
-
 
   useEffect(() => {
     const alExpirar = () => setUsuario(null);
@@ -139,22 +137,22 @@ export default function App() {
     }
   }
 
-async function actualizarAsignatura(id, datos) {
-  try {
-    const actualizada = await actualizarAsignaturaApi(id, datos);
+  async function actualizarAsignatura(id, datos) {
+    try {
+      const actualizada = await actualizarAsignaturaApi(id, datos);
 
-    setAsignaturas((actuales) =>
-      actuales.map((asignatura) =>
-        asignatura.id === id ? actualizada : asignatura,
-      ),
-    );
+      setAsignaturas((actuales) =>
+        actuales.map((asignatura) =>
+          asignatura.id === id ? actualizada : asignatura,
+        ),
+      );
 
-    return true;
-  } catch (err) {
-    alert(err.message || "No se pudo actualizar la asignatura.");
-    return false;
+      return true;
+    } catch (err) {
+      alert(err.message || "No se pudo actualizar la asignatura.");
+      return false;
+    }
   }
-}
 
   async function eliminarAsignaturas(idsAEliminar) {
     const ids = Array.isArray(idsAEliminar) ? idsAEliminar : [idsAEliminar];
@@ -192,7 +190,8 @@ async function actualizarAsignatura(id, datos) {
         abrirModalAsignatura={() => {
           setAsignaturaEditar(null);
           setMostrarModalAsignatura(true);
-        }} onSalir={salir}
+        }}
+        onSalir={salir}
       />
 
       <main className="main-content">
@@ -207,6 +206,14 @@ async function actualizarAsignatura(id, datos) {
           </div>
         ) : (
           <>
+            {vista === "dashboard" && (
+              <DashboardPage
+                actividades={actividades}
+                asignaturas={asignaturas}
+                navegar={navegar}
+              />
+            )}
+
             {vista === "lista" && (
               <ListaActividadesPage
                 key={filtroAsignaturaId ?? "todas"}
@@ -216,6 +223,7 @@ async function actualizarAsignatura(id, datos) {
                 navegar={navegar}
               />
             )}
+
             {vista === "detalle" && (
               <DetalleActividadPage
                 actividadId={actividadId}
@@ -227,6 +235,7 @@ async function actualizarAsignatura(id, datos) {
                 navegar={navegar}
               />
             )}
+
             {vista === "nueva" && (
               <NuevaActividadPage
                 actividadId={actividadId}
@@ -237,6 +246,7 @@ async function actualizarAsignatura(id, datos) {
                 navegar={navegar}
               />
             )}
+
             {vista === "asignaturas" && (
               <AsignaturasPage
                 asignaturas={asignaturas}
@@ -245,20 +255,24 @@ async function actualizarAsignatura(id, datos) {
                 abrirModalAsignatura={() => {
                   setAsignaturaEditar(null);
                   setMostrarModalAsignatura(true);
-
-                }} editarAsignatura={(asignatura) => {
+                }}
+                editarAsignatura={(asignatura) => {
                   setAsignaturaEditar(asignatura);
                   setMostrarModalAsignatura(true);
-                }} navegar={navegar}
+                }}
+                navegar={navegar}
               />
             )}
+
             {vista === "calendario" && <CalendarioPage actividades={actividades} />}
+
             {vista === "historial" && (
               <HistorialPage
                 asignaturas={asignaturas}
                 navegar={navegar}
               />
             )}
+
             {vista === "libros" && <LibrosPage asignaturas={asignaturas} />}
           </>
         )}
