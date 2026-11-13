@@ -84,6 +84,12 @@ export const obtenerAsignaturas = () => peticion("/asignaturas");
 export const crearAsignaturaApi = (datos) =>
   peticion("/asignaturas", { method: "POST", body: JSON.stringify(datos) });
 
+export const actualizarAsignaturaApi = (id, datos) =>
+  peticion(`/asignaturas/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(datos),
+  });
+
 export async function eliminarAsignaturaApi(id) {
   try {
     await peticion(`/asignaturas/${id}`, { method: "DELETE" });

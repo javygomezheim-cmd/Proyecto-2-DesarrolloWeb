@@ -8,10 +8,10 @@ import AsignaturaModal from "./components/AsignaturaModal";
 import CalendarioPage from "./pages/Calendariopage.jsx";
 import HistorialPage from "./pages/HistorialPage";
 import LibrosPage from "./pages/LibrosPage.jsx";
-import { 
-  obtenerAsignaturas, crearAsignaturaApi, eliminarAsignaturaApi,
+import {
+  obtenerAsignaturas, crearAsignaturaApi, actualizarAsignaturaApi, eliminarAsignaturaApi,
   obtenerActividadesApi, crearActividadApi, actualizarActividadApi, eliminarActividadApi,
-  obtenerUsuarioGuardado, cerrarSesion 
+  obtenerUsuarioGuardado, cerrarSesion
 } from "./services/api";
 import LoginPage from "./pages/LoginPage";
 
@@ -21,6 +21,7 @@ export default function App() {
   const [actividadId, setActividadId] = useState(null);
   const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
   const [filtroAsignaturaId, setFiltroAsignaturaId] = useState(null);
+  const [asignaturaEditar, setAsignaturaEditar] = useState(null);
 
   const [asignaturas, setAsignaturas] = useState([]);
   const [actividades, setActividades] = useState([]);
@@ -30,42 +31,42 @@ export default function App() {
 
 
   // Cargar datos remotos al iniciar
- useEffect(() => {
-  if (!usuario) return;
-  async function cargarDatos() {
-    try {
-      setCargando(true);
-      setErrorApp(null);
-      const [dataAsignaturas, dataActividades] = await Promise.all([
-        obtenerAsignaturas(),
-        obtenerActividadesApi(),
-      ]);
-      setAsignaturas(dataAsignaturas);
-      setActividades(dataActividades);
-    } catch (err) {
-      console.error(err);
-      setErrorApp(err.message || "No se pudo cargar la información.");
-    } finally {
-      setCargando(false);
+  useEffect(() => {
+    if (!usuario) return;
+    async function cargarDatos() {
+      try {
+        setCargando(true);
+        setErrorApp(null);
+        const [dataAsignaturas, dataActividades] = await Promise.all([
+          obtenerAsignaturas(),
+          obtenerActividadesApi(),
+        ]);
+        setAsignaturas(dataAsignaturas);
+        setActividades(dataActividades);
+      } catch (err) {
+        console.error(err);
+        setErrorApp(err.message || "No se pudo cargar la información.");
+      } finally {
+        setCargando(false);
+      }
     }
+    cargarDatos();
+  }, [usuario]);
+
+
+  useEffect(() => {
+    const alExpirar = () => setUsuario(null);
+    window.addEventListener("sesion-expirada", alExpirar);
+    return () => window.removeEventListener("sesion-expirada", alExpirar);
+  }, []);
+
+  function salir() {
+    cerrarSesion();
+    setUsuario(null);
+    setAsignaturas([]);
+    setActividades([]);
+    setVista("lista");
   }
-  cargarDatos();
-}, [usuario]);
-
-
-useEffect(() => {
-  const alExpirar = () => setUsuario(null);
-  window.addEventListener("sesion-expirada", alExpirar);
-  return () => window.removeEventListener("sesion-expirada", alExpirar);
-}, []);
-
-function salir() {
-  cerrarSesion();
-  setUsuario(null);
-  setAsignaturas([]);
-  setActividades([]);
-  setVista("lista");
-}
 
   function navegar(nuevaVista, id = null) {
     setVista(nuevaVista);
@@ -100,7 +101,7 @@ function salir() {
     }
   }
 
-    async function eliminarActividad(id) {
+  async function eliminarActividad(id) {
     try {
       await eliminarActividadApi(id);
       setActividades((actuales) => actuales.filter((a) => a.id !== id));
@@ -131,10 +132,29 @@ function salir() {
     try {
       const nuevaCreada = await crearAsignaturaApi(datos);
       setAsignaturas((actuales) => [...actuales, nuevaCreada]);
+      return true;
     } catch (err) {
       alert(err.message || "No se pudo guardar la asignatura en el servidor backend.");
+      return false;
     }
   }
+
+async function actualizarAsignatura(id, datos) {
+  try {
+    const actualizada = await actualizarAsignaturaApi(id, datos);
+
+    setAsignaturas((actuales) =>
+      actuales.map((asignatura) =>
+        asignatura.id === id ? actualizada : asignatura,
+      ),
+    );
+
+    return true;
+  } catch (err) {
+    alert(err.message || "No se pudo actualizar la asignatura.");
+    return false;
+  }
+}
 
   async function eliminarAsignaturas(idsAEliminar) {
     const ids = Array.isArray(idsAEliminar) ? idsAEliminar : [idsAEliminar];
@@ -169,8 +189,10 @@ function salir() {
       <Sidebar
         vista={vista}
         navegar={navegar}
-        abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
-        onSalir={salir}
+        abrirModalAsignatura={() => {
+          setAsignaturaEditar(null);
+          setMostrarModalAsignatura(true);
+        }} onSalir={salir}
       />
 
       <main className="main-content">
@@ -220,8 +242,14 @@ function salir() {
                 asignaturas={asignaturas}
                 actividades={actividades}
                 eliminarAsignaturas={eliminarAsignaturas}
-                abrirModalAsignatura={() => setMostrarModalAsignatura(true)}
-                navegar={navegar}
+                abrirModalAsignatura={() => {
+                  setAsignaturaEditar(null);
+                  setMostrarModalAsignatura(true);
+
+                }} editarAsignatura={(asignatura) => {
+                  setAsignaturaEditar(asignatura);
+                  setMostrarModalAsignatura(true);
+                }} navegar={navegar}
               />
             )}
             {vista === "calendario" && <CalendarioPage actividades={actividades} />}
@@ -239,7 +267,14 @@ function salir() {
       <AsignaturaModal
         visible={mostrarModalAsignatura}
         alCerrar={() => setMostrarModalAsignatura(false)}
-        alGuardar={agregarAsignatura}
+        alGuardar={(datos) => {
+          if (asignaturaEditar) {
+            return actualizarAsignatura(asignaturaEditar.id, datos);
+          }
+
+          return agregarAsignatura(datos);
+        }}
+        asignaturaEditar={asignaturaEditar}
       />
     </div>
   );

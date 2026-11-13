@@ -4,18 +4,18 @@ export default function AsignaturaCard({
   modoEliminar,
   seleccionada,
   seleccionar,
+  editarAsignatura,
   navegar,
 }) {
-  // 1. Filtrar solo las actividades PENDIENTES (no completadas) de esta asignatura
   const actividadesPendientes = actividades.filter(
     (actividad) =>
       actividad.asignaturaId === asignatura.id &&
       !actividad.completada &&
       actividad.estado !== "completada",
   );
+
   const cantidad = actividadesPendientes.length;
 
-  // 2. Obtener el próximo trabajo con fecha límite más cercana
   const proximoTrabajo = (() => {
     const conFecha = actividadesPendientes
       .filter((act) => act.fechaLimite)
@@ -29,14 +29,16 @@ export default function AsignaturaCard({
     if (conFecha.length === 0) return null;
 
     const primerTrabajo = conFecha[0];
-    const fechaFormateada = primerTrabajo.fechaObj.toLocaleDateString("es-ES", {
-      day: "numeric",
-      month: "short",
-    });
-    const horaFormateada = primerTrabajo.fechaObj.toLocaleTimeString("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+
+    const fechaFormateada = primerTrabajo.fechaObj.toLocaleDateString(
+      "es-ES",
+      { day: "numeric", month: "short" },
+    );
+
+    const horaFormateada = primerTrabajo.fechaObj.toLocaleTimeString(
+      "es-ES",
+      { hour: "2-digit", minute: "2-digit" },
+    );
 
     return {
       titulo: primerTrabajo.titulo,
@@ -47,12 +49,8 @@ export default function AsignaturaCard({
   return (
     <div
       className="card h-100 shadow-sm border-0"
-      style={{
-        borderRadius: "16px",
-        overflow: "hidden",
-      }}
+      style={{ borderRadius: "16px", overflow: "hidden" }}
     >
-      {/* Franja superior con el color de la asignatura */}
       <div
         style={{
           height: "8px",
@@ -61,7 +59,6 @@ export default function AsignaturaCard({
       />
 
       <div className="card-body d-flex flex-column">
-        {/* Checkbox de selección si está activo el modo eliminar */}
         {modoEliminar && (
           <div className="form-check mb-2">
             <input
@@ -74,21 +71,19 @@ export default function AsignaturaCard({
           </div>
         )}
 
-        {/* Nombre de la asignatura con emoji de hoja escrita */}
         <h4 className="fw-bold mb-1 d-flex align-items-center gap-2">
           <span>📄</span>
           <span>{asignatura.nombre}</span>
         </h4>
 
-        {/* Profesor y período */}
         <p className="text-muted mb-1" style={{ fontSize: "0.9rem" }}>
           👨‍🏫 {asignatura.profesor}
         </p>
+
         <p className="text-muted mb-2" style={{ fontSize: "0.85rem" }}>
           🗓️ Período {asignatura.periodo ?? "2026-2"}
         </p>
 
-        {/* Cantidad de actividades */}
         <div className="mb-2">
           {cantidad > 0 ? (
             <button
@@ -105,10 +100,8 @@ export default function AsignaturaCard({
           )}
         </div>
 
-        {/* Línea de separación gris */}
         <hr className="my-2 text-secondary opacity-25" />
 
-        {/* Próximo trabajo */}
         <div className="mb-3">
           <small
             className="text-muted d-block fw-bold text-uppercase mb-1"
@@ -116,6 +109,7 @@ export default function AsignaturaCard({
           >
             Próximo trabajo
           </small>
+
           {proximoTrabajo ? (
             <div>
               <p
@@ -135,6 +129,17 @@ export default function AsignaturaCard({
             </small>
           )}
         </div>
+
+        {!modoEliminar && (
+          <div className="mt-auto pt-2">
+            <button
+              className="btn btn-outline-primary btn-sm w-100"
+              onClick={editarAsignatura}
+            >
+              ✏️ Editar asignatura
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
+export default function AsignaturaModal({ visible, alCerrar, alGuardar, asignaturaEditar, }) {
   const [nombre, setNombre] = useState("");
   const [profesor, setProfesor] = useState("");
   const [color, setColor] = useState("#2563EB");
   const [periodo, setPeriodo] = useState("2026-2");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (asignaturaEditar) {
+      setNombre(asignaturaEditar.nombre || "");
+      setProfesor(asignaturaEditar.profesor || "");
+      setColor(asignaturaEditar.color || "#2563EB");
+      setPeriodo(asignaturaEditar.periodo || "2026-2");
+    } else {
+      setNombre("");
+      setProfesor("");
+      setColor("#2563EB");
+      setPeriodo("2026-2");
+    }
+
+    setError("");
+  }, [asignaturaEditar, visible]);
 
   if (!visible) return null;
 
@@ -18,33 +34,37 @@ export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
     alCerrar();
   };
 
-  const manejarEnvio = (e) => {
-    if (e) e.preventDefault();
+  async function manejarEnvio(e) {
+    e.preventDefault();
+
+    setError("");
 
     if (!nombre.trim() || !profesor.trim()) {
-      setError("Completa todos los campos obligatorios.");
+      setError("El nombre y el profesor son obligatorios.");
       return;
     }
 
     if (!/^#[0-9A-F]{6}$/i.test(color)) {
-      setError("El color debe tener un formato HEX válido.");
+      setError("El color debe tener un formato hexadecimal válido.");
       return;
     }
 
-    if (!/^\d{4}-[12]$/.test(periodo.trim())) {
-      setError("El período debe tener formato AAAA-S (ej. 2026-2).");
+    if (!/^\d{4}-[12]$/.test(periodo)) {
+      setError("El período debe tener el formato AAAA-1 o AAAA-2.");
       return;
     }
 
-    alGuardar({
+    const resultado = await alGuardar({
       nombre: nombre.trim(),
       profesor: profesor.trim(),
       color: color.toUpperCase(),
-      periodo: periodo.trim(),
+      periodo,
     });
 
-    limpiarYSalir();
-  };
+    if (resultado !== false) {
+      limpiarYSalir();
+    }
+  }
 
   return (
     <>
@@ -65,7 +85,9 @@ export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content border-0 rounded-4 shadow">
             <div className="modal-header">
-              <h5 className="modal-title fw-bold">Nueva Asignatura</h5>
+              <h5 className="modal-title">
+                {asignaturaEditar ? "Editar Asignatura" : "Nueva Asignatura"}
+              </h5>
               <button
                 type="button"
                 className="btn-close"
@@ -176,7 +198,7 @@ export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
                   Cancelar
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Guardar
+                  {asignaturaEditar ? "Guardar cambios" : "Crear asignatura"}
                 </button>
               </div>
             </form>
