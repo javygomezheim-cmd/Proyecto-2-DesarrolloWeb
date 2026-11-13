@@ -21,10 +21,13 @@ Los estudiantes de educación superior manejan varias asignaturas con tareas, co
 |---|---|---|
 | Datos | `localStorage` + JSON locales | API REST propia + PostgreSQL + MongoDB |
 | Usuarios | Sin cuentas | Registro, login y JWT; cada usuario ve solo sus datos |
-| Asignaturas | Nombre, profesor, color | Se agrega **período académico** (`periodo`, ej. `2026-2`) |
-| Actividades | Título, fecha, descripción, subtareas | Se agregan **tipo** (tarea/evaluación), **prioridad**, **estado**, **% de avance** |
-| Historial | Actividades completadas (local) | **Historial de actividad en MongoDB**, con detalle de cambios |
-| API pública | Nager.Date y Open Library | Se mantienen (consumo desde el frontend) |
+| Asignaturas | Nombre, profesor, color | Gestión de asignaturas: creación, edición y eliminación; incluye período académico |
+| Actividades | Título, fecha, descripción, subtareas | Tareas y evaluaciones con prioridad, estado, fecha límite y porcentaje de avance |
+| Seguimiento | Actividades completadas | Dashboard con resumen de actividades, pendientes y progreso |
+| Calendario | Calendario de actividades | Calendario con vencimientos y feriados de Chile |
+| Historial | Actividades completadas (local) | Historial de actividad y cambios almacenado en MongoDB |
+| Interfaz | Interfaz del Taller 2 | Sidebar mejorado, navegación entre vistas e iconos Bootstrap |
+| API pública | Nager.Date y Open Library | Se mantienen para feriados y búsqueda de libros |
 
 Funcionalidades obligatorias del caso: asignaturas y períodos, evaluaciones/tareas/subtareas, calendario con fechas, prioridades y estados, seguimiento de avance, listado de pendientes/vencimientos e historial de actividad y cambios.
 
@@ -61,11 +64,12 @@ Funcionalidades obligatorias del caso: asignaturas y períodos, evaluaciones/tar
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | React ^19.2.8, Vite ^8.3.0, Bootstrap ^5.3.8, ESLint ^10.10.0 |
+| Frontend | React ^19.2.8, Vite ^8.3.0, Bootstrap ^5.3.8, Bootstrap Icons, ESLint ^10.10.0 |
 | Backend | NestJS ^12.0.1, TypeORM ^1.1.2, Mongoose ^9.12.1, `pg` ^8.23.1, class-validator ^0.15.1, bcrypt ^6.0.0, `@nestjs/jwt` ^12.0.4, `@nestjs/swagger` ^12.1.1, TypeScript ^6.0.2 |
 | Pruebas | Vitest ^4.1.2, Supertest ^7.0.0 |
 | Bases de datos | PostgreSQL 16 (`postgres:16`), MongoDB 7 (`mongo:7`) |
 | Infraestructura | Docker Compose |
+| Herramientas | Git, GitHub, Visual Studio Code |
 
 ## 6. Modelo SQL (PostgreSQL)
 
@@ -216,13 +220,12 @@ No se versionan archivos `.env` con secretos (`.gitignore`).
 
 ## 13. Limitaciones conocidas
 
-* La edición de asignaturas está disponible por API (`PUT /asignaturas/:id`, Swagger); la interfaz permite crear y eliminar.
-* No hay migraciones: el esquema se crea con `init.sql` al iniciar el volumen vacío.
-* Las evaluaciones son una variante (`tipo`) de tarea, sin nota ni ponderación.
-* Las subtareas viven en `jsonb`, sin tabla propia.
-* El token JWT se guarda en `localStorage`.
-* No hay pruebas automatizadas de integración con las bases de datos reales.
-* Si MongoDB no responde, la operación principal se completa y el error del historial solo queda en el log del servidor.
+* Las evaluaciones se modelan como una variante de las tareas (`tipo = 'evaluacion'`); no cuentan con campos propios para nota ni ponderación.
+* Las subtareas se almacenan como un arreglo JSONB dentro de cada tarea, sin una tabla independiente.
+* No se utilizan migraciones de base de datos; el esquema se crea mediante `init.sql` al iniciar un volumen vacío.
+* El token JWT se almacena en `localStorage` del navegador.
+* Las pruebas automatizadas de integración con PostgreSQL y MongoDB reales todavía no están implementadas.
+* Si MongoDB no responde, la operación principal se completa, pero el error del registro de historial queda solamente en el log del servidor..
 
 ## 14. Uso de Inteligencia Artificial
 
@@ -235,7 +238,7 @@ No se versionan archivos `.env` con secretos (`.gitignore`).
 | **Validación humana** | Se revisó cada parche contra las entidades, DTO y pantallas; se ajustaron nombres, se probó el flujo en Swagger y React, y se descartó lo que no correspondía al caso |
 | **Aprendizaje** | Alinear DTO con `ValidationPipe`, normalizar relaciones TypeORM en el frontend, mantener coherencia entre `init.sql` y las entidades, y justificar MongoDB como registro de eventos |
 
-El equipo es responsable de comprender el código incorporado y puede explicarlo en la defensa.
+El uso de inteligencia artificial fue complementario al trabajo del equipo. Las sugerencias y fragmentos de código generados fueron revisados, adaptados y probados antes de incorporarse al proyecto. Todos los integrantes son responsables de comprender las funcionalidades implementadas y poder explicar sus decisiones técnicas durante la defensa.
 
 ## 15. Trabajo colaborativo y Git
 
