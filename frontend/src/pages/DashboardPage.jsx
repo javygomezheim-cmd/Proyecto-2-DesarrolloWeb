@@ -6,7 +6,6 @@ export default function DashboardPage({
 }) {
   const ahora = new Date();
 
-  // Una actividad está completada si cumple cualquiera de estas condiciones.
   const completadas = actividades.filter(
     (actividad) =>
       actividad.completada || actividad.estado === "completada",
@@ -41,7 +40,10 @@ export default function DashboardPage({
   return (
     <div className="container-fluid p-4">
       <div className="mb-4">
-        <h2 className="fw-bold">📊 Dashboard</h2>
+        <h2 className="fw-bold">
+          <i className="bi bi-speedometer2 text-primary me-2"></i>
+          Dashboard
+        </h2>
         <p className="text-muted">
           Resumen general de tu actividad académica
         </p>
@@ -52,9 +54,14 @@ export default function DashboardPage({
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="card shadow-sm border-0 h-100">
             <div className="card-body">
-              <p className="text-muted mb-1">Total de actividades</p>
+              <p className="text-muted mb-1">
+                Total de actividades
+              </p>
               <h2 className="fw-bold mb-0">{actividades.length}</h2>
-              <small className="text-primary">Registradas</small>
+              <small className="text-primary">
+                <i className="bi bi-clipboard-check me-1"></i>
+                Registradas
+              </small>
             </div>
           </div>
         </div>
@@ -64,7 +71,10 @@ export default function DashboardPage({
             <div className="card-body">
               <p className="text-muted mb-1">Pendientes</p>
               <h2 className="fw-bold mb-0">{pendientes.length}</h2>
-              <small className="text-warning">Por completar</small>
+              <small className="text-warning">
+                <i className="bi bi-clock me-1"></i>
+                Por completar
+              </small>
             </div>
           </div>
         </div>
@@ -74,7 +84,10 @@ export default function DashboardPage({
             <div className="card-body">
               <p className="text-muted mb-1">Atrasadas</p>
               <h2 className="fw-bold mb-0">{atrasadas.length}</h2>
-              <small className="text-danger">Fuera de plazo</small>
+              <small className="text-danger">
+                <i className="bi bi-exclamation-triangle me-1"></i>
+                Fuera de plazo
+              </small>
             </div>
           </div>
         </div>
@@ -84,7 +97,10 @@ export default function DashboardPage({
             <div className="card-body">
               <p className="text-muted mb-1">Completadas</p>
               <h2 className="fw-bold mb-0">{completadas.length}</h2>
-              <small className="text-success">Finalizadas</small>
+              <small className="text-success">
+                <i className="bi bi-check-circle me-1"></i>
+                Finalizadas
+              </small>
             </div>
           </div>
         </div>
@@ -94,7 +110,10 @@ export default function DashboardPage({
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <h5 className="fw-bold mb-0">Progreso general</h5>
+            <h5 className="fw-bold mb-0">
+              <i className="bi bi-graph-up-arrow text-success me-2"></i>
+              Progreso general
+            </h5>
             <span className="fw-bold">{progreso}%</span>
           </div>
 
@@ -123,7 +142,10 @@ export default function DashboardPage({
         <div className="col-12 col-lg-7">
           <div className="card shadow-sm border-0 h-100">
             <div className="card-body">
-              <h5 className="fw-bold mb-3">📅 Próximas entregas</h5>
+              <h5 className="fw-bold mb-3">
+                <i className="bi bi-calendar-event text-primary me-2"></i>
+                Próximas entregas
+              </h5>
 
               {proximas.length === 0 ? (
                 <p className="text-muted mb-0">
@@ -147,11 +169,13 @@ export default function DashboardPage({
                           <div>
                             <strong>{actividad.titulo}</strong>
                             <div className="small text-muted">
+                              <i className="bi bi-journal-bookmark me-1"></i>
                               {asignatura?.nombre || "Sin asignatura"}
                             </div>
                           </div>
 
                           <small className="text-primary text-nowrap">
+                            <i className="bi bi-calendar3 me-1"></i>
                             {new Date(
                               actividad.fechaLimite,
                             ).toLocaleDateString("es-CL", {
@@ -172,6 +196,7 @@ export default function DashboardPage({
                 onClick={() => navegar("lista")}
               >
                 Ver todas las actividades
+                <i className="bi bi-arrow-right ms-2"></i>
               </button>
             </div>
           </div>
@@ -181,7 +206,10 @@ export default function DashboardPage({
         <div className="col-12 col-lg-5">
           <div className="card shadow-sm border-0 h-100">
             <div className="card-body">
-              <h5 className="fw-bold mb-3">📚 Progreso por asignatura</h5>
+              <h5 className="fw-bold mb-3">
+                <i className="bi bi-journal-bookmark text-primary me-2"></i>
+                Progreso por asignatura
+              </h5>
 
               {asignaturas.length === 0 ? (
                 <p className="text-muted mb-0">
@@ -248,6 +276,7 @@ export default function DashboardPage({
                 onClick={() => navegar("asignaturas")}
               >
                 Ver asignaturas
+                <i className="bi bi-arrow-right ms-2"></i>
               </button>
             </div>
           </div>

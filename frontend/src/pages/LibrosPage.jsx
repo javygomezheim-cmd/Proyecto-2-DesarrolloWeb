@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 function LibrosPage({ asignaturas }) {
@@ -50,14 +51,17 @@ function LibrosPage({ asignaturas }) {
 
   return (
     <div className="container-fluid py-4">
-      <h1 className="mb-4">📖 Buscar libros</h1>
+      <h1 className="mb-4 fw-bold">
+        <i className="bi bi-book text-primary me-2"></i>
+        Buscar libros
+      </h1>
 
       <div className="card shadow-sm p-4 mb-4">
         <div className="row g-3">
-
           {/* Asignatura */}
           <div className="col-md-4">
             <label className="form-label fw-bold">
+              <i className="bi bi-journal-bookmark me-1"></i>
               Asignatura
             </label>
 
@@ -84,6 +88,7 @@ function LibrosPage({ asignaturas }) {
           {/* Búsqueda */}
           <div className="col-md-6">
             <label className="form-label fw-bold">
+              <i className="bi bi-search me-1"></i>
               Buscar libro
             </label>
 
@@ -108,7 +113,20 @@ function LibrosPage({ asignaturas }) {
               onClick={buscarLibros}
               disabled={cargando}
             >
-              {cargando ? "Buscando..." : "🔎 Buscar"}
+              {cargando ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                  ></span>
+                  Buscando...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-search me-2"></i>
+                  Buscar
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -116,6 +134,7 @@ function LibrosPage({ asignaturas }) {
         {/* Información de asignatura */}
         {asignaturaSeleccionada && (
           <div className="alert alert-info mt-3 mb-0">
+            <i className="bi bi-info-circle me-2"></i>
             Buscando libros para:{" "}
             <strong>{asignaturaSeleccionada}</strong>
           </div>
@@ -125,6 +144,7 @@ function LibrosPage({ asignaturas }) {
       {/* Error */}
       {error && (
         <div className="alert alert-warning">
+          <i className="bi bi-exclamation-triangle me-2"></i>
           {error}
         </div>
       )}
@@ -133,6 +153,7 @@ function LibrosPage({ asignaturas }) {
       {libros.length > 0 && (
         <>
           <h2 className="mb-3">
+            <i className="bi bi-journals me-2 text-primary"></i>
             Resultados ({libros.length})
           </h2>
 
@@ -148,7 +169,6 @@ function LibrosPage({ asignaturas }) {
                   key={`${libro.key}-${index}`}
                 >
                   <div className="card h-100 shadow-sm">
-
                     {portada ? (
                       <img
                         src={portada}
@@ -162,9 +182,10 @@ function LibrosPage({ asignaturas }) {
                       />
                     ) : (
                       <div
-                        className="d-flex align-items-center justify-content-center bg-light"
+                        className="d-flex flex-column align-items-center justify-content-center bg-light"
                         style={{ height: "280px" }}
                       >
+                        <i className="bi bi-book text-secondary fs-1 mb-2"></i>
                         <span className="text-muted">
                           Sin portada
                         </span>
@@ -172,7 +193,6 @@ function LibrosPage({ asignaturas }) {
                     )}
 
                     <div className="card-body d-flex flex-column">
-
                       <h5 className="card-title">
                         {libro.title}
                       </h5>
@@ -195,9 +215,9 @@ function LibrosPage({ asignaturas }) {
                         rel="noopener noreferrer"
                         className="btn btn-outline-primary mt-auto"
                       >
+                        <i className="bi bi-box-arrow-up-right me-2"></i>
                         Ver en Open Library
                       </a>
-
                     </div>
                   </div>
                 </div>

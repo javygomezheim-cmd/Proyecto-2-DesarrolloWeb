@@ -17,7 +17,7 @@ import {
 import LoginPage from "./pages/LoginPage";
 
 export default function App() {
-  const [vista, setVista] = useState("lista");
+  const [vista, setVista] = useState("dashboard");
   const [actividadId, setActividadId] = useState(null);
   const [mostrarModalAsignatura, setMostrarModalAsignatura] = useState(false);
   const [filtroAsignaturaId, setFiltroAsignaturaId] = useState(null);

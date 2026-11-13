@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { obtenerHistorialApi } from "../services/api";
 
@@ -25,32 +26,48 @@ export default function HistorialPage() {
         setCargando(false);
       }
     }
+
     cargarHistorial();
   }, []);
 
   return (
     <div className="container py-4">
-      <h1 className="fw-bold mb-1">Historial</h1>
-      <p className="text-muted mb-4">Registro de acciones y cambios en tu cuenta</p>
+      <h1 className="fw-bold mb-1">
+        <i className="bi bi-clock-history text-primary me-2"></i>
+        Historial
+      </h1>
+
+      <p className="text-muted mb-4">
+        Registro de acciones y cambios en tu cuenta
+      </p>
 
       {cargando ? (
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status"></div>
         </div>
       ) : error ? (
-        <div className="alert alert-danger">{error}</div>
+        <div className="alert alert-danger">
+          <i className="bi bi-exclamation-circle me-2"></i>
+          {error}
+        </div>
       ) : eventos.length === 0 ? (
         <div className="text-center py-5">
+          <i className="bi bi-clock-history text-muted fs-1 mb-3"></i>
           <h5>No hay eventos registrados en el historial.</h5>
-          <p className="text-muted">Las acciones que realices aparecerán aquí.</p>
+          <p className="text-muted">
+            Las acciones que realices aparecerán aquí.
+          </p>
         </div>
       ) : (
         <div className="d-flex flex-column gap-3">
           {eventos.map((evento) => {
-            const fechaFormateada = new Date(evento.fecha).toLocaleString("es-CL", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            });
+            const fechaFormateada = new Date(evento.fecha).toLocaleString(
+              "es-CL",
+              {
+                dateStyle: "medium",
+                timeStyle: "short",
+              },
+            );
 
             return (
               <div
@@ -64,11 +81,21 @@ export default function HistorialPage() {
                   >
                     {ETIQUETA_ENTIDAD[evento.entidad] ?? evento.entidad} - {evento.accion}
                   </span>
-                  <h5 className="fw-bold mb-1 text-dark">{evento.titulo}</h5>
+
+                  <h5 className="fw-bold mb-1 text-dark">
+                    {evento.titulo}
+                  </h5>
+
                   {evento.detalle && (
-                    <p className="mb-1 text-muted small">{evento.detalle}</p>
+                    <p className="mb-1 text-muted small">
+                      {evento.detalle}
+                    </p>
                   )}
-                  <small className="text-muted">📅 {fechaFormateada}</small>
+
+                  <small className="text-muted">
+                    <i className="bi bi-calendar-event me-1"></i>
+                    {fechaFormateada}
+                  </small>
                 </div>
               </div>
             );

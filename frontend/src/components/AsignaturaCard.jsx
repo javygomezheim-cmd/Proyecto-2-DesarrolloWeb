@@ -1,3 +1,4 @@
+
 export default function AsignaturaCard({
   asignatura,
   actividades,
@@ -72,16 +73,18 @@ export default function AsignaturaCard({
         )}
 
         <h4 className="fw-bold mb-1 d-flex align-items-center gap-2">
-          <span>📄</span>
+          <i className="bi bi-file-earmark-text text-primary"></i>
           <span>{asignatura.nombre}</span>
         </h4>
 
         <p className="text-muted mb-1" style={{ fontSize: "0.9rem" }}>
-          👨‍🏫 {asignatura.profesor}
+          <i className="bi bi-person me-2"></i>
+          {asignatura.profesor}
         </p>
 
         <p className="text-muted mb-2" style={{ fontSize: "0.85rem" }}>
-          🗓️ Período {asignatura.periodo ?? "2026-2"}
+          <i className="bi bi-calendar3 me-2"></i>
+          Período {asignatura.periodo ?? "2026-2"}
         </p>
 
         <div className="mb-2">
@@ -91,11 +94,13 @@ export default function AsignaturaCard({
               style={{ fontSize: "0.9rem" }}
               onClick={() => navegar && navegar("lista", asignatura.id)}
             >
-              📚 {cantidad} {cantidad === 1 ? "actividad" : "actividades"}
+              <i className="bi bi-journal-text me-2"></i>
+              {cantidad} {cantidad === 1 ? "actividad" : "actividades"}
             </button>
           ) : (
             <span className="text-muted" style={{ fontSize: "0.9rem" }}>
-              📚 Sin actividades
+              <i className="bi bi-journal-text me-2"></i>
+              Sin actividades
             </span>
           )}
         </div>
@@ -120,7 +125,8 @@ export default function AsignaturaCard({
                 {proximoTrabajo.titulo}
               </p>
               <small className="text-muted">
-                📅 {proximoTrabajo.fechaYHora}
+                <i className="bi bi-calendar-event me-2"></i>
+                {proximoTrabajo.fechaYHora}
               </small>
             </div>
           ) : (
@@ -136,7 +142,8 @@ export default function AsignaturaCard({
               className="btn btn-outline-primary btn-sm w-100"
               onClick={editarAsignatura}
             >
-              ✏️ Editar asignatura
+              <i className="bi bi-pencil me-2"></i>
+              Editar asignatura
             </button>
           </div>
         )}
