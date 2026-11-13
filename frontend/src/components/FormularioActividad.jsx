@@ -29,9 +29,17 @@ export default function FormularioActividad({
     });
   }
 
+  const sinAsignaturas = asignaturas.length === 0;
+  const asignaturaIdEfectiva = formulario.asignaturaId || asignaturas[0]?.id || "";
+
   function handleSubmit(e) {
     e.preventDefault();
-    onGuardar({ ...formulario });
+    if (!asignaturaIdEfectiva) return;
+    onGuardar({
+      ...formulario,
+      asignaturaId: asignaturaIdEfectiva,
+      completada: formulario.estado === "completada",
+    });
   }
 
   return (
@@ -56,13 +64,23 @@ export default function FormularioActividad({
             id="asignaturaId"
             name="asignaturaId"
             className="form-select"
-            value={formulario.asignaturaId}
+            value={asignaturaIdEfectiva}
             onChange={handleChange}
+            required
+            disabled={sinAsignaturas}
           >
+            {sinAsignaturas && (
+              <option value="" disabled>Primero crea una asignatura</option>
+            )}
             {asignaturas.map((a) => (
               <option key={a.id} value={a.id}>{a.nombre}</option>
             ))}
           </select>
+          {sinAsignaturas && (
+            <div className="form-text text-danger">
+              Crea una asignatura antes de registrar actividades.
+            </div>
+          )}
         </div>
 
         <div className="col-md-6">
@@ -77,7 +95,32 @@ export default function FormularioActividad({
             required
           />
         </div>
+        <div className="col-md-6">
+          <label htmlFor="tipo" className="form-label">Tipo</label>
+          <select id="tipo" name="tipo" className="form-select" value={formulario.tipo} onChange={handleChange}>
+            <option value="tarea">Tarea</option>
+            <option value="evaluacion">Evaluación</option>
+          </select>
+        </div>
 
+        <div className="col-md-6">
+          <label htmlFor="prioridad" className="form-label">Prioridad</label>
+          <select id="prioridad" name="prioridad" className="form-select" value={formulario.prioridad} onChange={handleChange}>
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+
+        <div className="col-md-6">
+          <label htmlFor="estado" className="form-label">Estado</label>
+          <select id="estado" name="estado" className="form-select" value={formulario.estado} onChange={handleChange}>
+            <option value="pendiente">Pendiente</option>
+            <option value="en_progreso">En progreso</option>
+            <option value="completada">Completada</option>
+          </select>
+        </div>
+        
         <div className="col-12">
           <label htmlFor="descripcion" className="form-label">Descripción</label>
           <textarea
@@ -130,7 +173,7 @@ export default function FormularioActividad({
       </div>
 
       <div className="d-flex gap-2 mt-4">
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-primary" disabled={sinAsignaturas}>
           {editando ? "Guardar cambios" : "Guardar actividad"}
         </button>
         <button type="button" className="btn btn-outline-secondary" onClick={onCancelar}>

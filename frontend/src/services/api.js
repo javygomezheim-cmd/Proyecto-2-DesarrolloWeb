@@ -1,6 +1,13 @@
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 const CLAVE_TOKEN = "agenda_token";
 const CLAVE_USUARIO = "agenda_usuario";
+
+const normalizar = (t) => ({
+  ...t,
+  asignaturaId: t.asignatura?.id ?? t.asignaturaId,
+  descripcion: t.descripcion ?? "",
+  subtareas: t.subtareas ?? [],
+});
 
 export function obtenerToken() {
   return localStorage.getItem(CLAVE_TOKEN);
@@ -36,7 +43,13 @@ async function peticion(ruta, opciones = {}) {
   }
 
   const texto = await res.text();
-  const cuerpo = texto ? JSON.parse(texto) : null;
+  let cuerpo;
+
+  try {
+    cuerpo = texto ? JSON.parse(texto) : null;
+  } catch {
+    throw new Error("El servidor devolvió una respuesta que no es JSON válido.");
+  }
 
   if (!res.ok) {
     const mensaje = Array.isArray(cuerpo?.message)
@@ -82,13 +95,13 @@ export async function eliminarAsignaturaApi(id) {
 }
 
 // --- TAREAS / ACTIVIDADES ---
-export const obtenerActividadesApi = () => peticion("/tareas");
+export const obtenerActividadesApi = async () => (await peticion("/tareas")).map(normalizar);
 
-export const crearActividadApi = (datos) =>
-  peticion("/tareas", { method: "POST", body: JSON.stringify(datos) });
+export const crearActividadApi = async (d) =>
+  normalizar(await peticion("/tareas", { method: "POST", body: JSON.stringify(d) }));
 
-export const actualizarActividadApi = (id, datos) =>
-  peticion(`/tareas/${id}`, { method: "PUT", body: JSON.stringify(datos) });
+export const actualizarActividadApi = async (id, d) =>
+  normalizar(await peticion(`/tareas/${id}`, { method: "PUT", body: JSON.stringify(d) }));
 
 export async function eliminarActividadApi(id) {
   await peticion(`/tareas/${id}`, { method: "DELETE" });
@@ -101,3 +114,4 @@ export function obtenerHistorialApi(entidad = "", limite = 50) {
   if (entidad) params.set("entidad", entidad);
   return peticion(`/historial?${params}`);
 }
+

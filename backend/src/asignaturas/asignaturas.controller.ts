@@ -5,6 +5,7 @@ import {
   Put,
   Delete,
   Param,
+  ParseUUIDPipe,
   Body,
   UseGuards,
 } from '@nestjs/common';
@@ -45,9 +46,10 @@ export class AsignaturasController {
   @Get(':id')
   @ApiOperation({ summary: 'Buscar una asignatura' })
   @ApiOkResponse({ description: 'La asignatura solicitada' })
+  @ApiBadRequestResponse({ description: 'El id no es un UUID válido' })
   @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   buscarUna(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
     return this.asignaturasService.buscarUna(id, usuario.id);
@@ -69,10 +71,10 @@ export class AsignaturasController {
   @ApiOperation({ summary: 'Actualizar una asignatura' })
   @ApiBody({ type: CrearAsignaturaDto })
   @ApiOkResponse({ description: 'Asignatura actualizada (registra el evento "editada" en el historial)' })
-  @ApiBadRequestResponse({ description: 'Datos inválidos o campos de más' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos, campos de más o id no UUID' })
   @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   actualizar(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() datos: CrearAsignaturaDto,
     @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
@@ -82,9 +84,10 @@ export class AsignaturasController {
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una asignatura' })
   @ApiOkResponse({ description: 'Asignatura eliminada (registra el evento "eliminada" en el historial)' })
+  @ApiBadRequestResponse({ description: 'El id no es un UUID válido' })
   @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   eliminar(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
     return this.asignaturasService.eliminar(id, usuario.id);

@@ -56,6 +56,19 @@ describe('AsignaturasService', () => {
         titulo: 'Matemática',
       });
     });
+
+    it('persiste el periodo académico recibido', async () => {
+      const create = vi.fn((datos) => datos);
+      const save = vi.fn(async (asignatura) => ({ ...asignatura, id: 'a2' }));
+      const { servicio } = crearServicio({ create, save });
+
+      await servicio.crear(
+        { nombre: 'Física', profesor: 'Ana', color: '#16a34a', periodo: '2026-1' },
+        'u1',
+      );
+
+      expect(create).toHaveBeenCalledWith(expect.objectContaining({ periodo: '2026-1' }));
+    });
   });
 
   describe('actualizar', () => {
@@ -77,6 +90,18 @@ describe('AsignaturasService', () => {
         entidadId: 'a1',
         titulo: 'Cálculo',
       });
+    });
+    
+    it('actualiza el periodo sin tocar los demás campos', async () => {
+      const existente = { id: 'a1', nombre: 'Mat', profesor: 'Juan', color: '#000000', periodo: '2026-2' };
+      const findOne = vi.fn().mockResolvedValue(existente);
+      const save = vi.fn(async (asignatura) => asignatura);
+      const { servicio } = crearServicio({ findOne, save });
+
+      const resultado = await servicio.actualizar('a1', { periodo: '2027-1' }, 'u1');
+
+      expect(resultado.periodo).toBe('2027-1');
+      expect(resultado.nombre).toBe('Mat');
     });
 
     it('no guarda ni registra evento si la asignatura no es del usuario', async () => {

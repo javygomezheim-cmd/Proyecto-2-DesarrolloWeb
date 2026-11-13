@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -59,7 +60,7 @@ export class TareasController {
   @ApiOkResponse({ description: 'La tarea solicitada' })
   @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   buscarUna(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
     return this.tareasService.buscarUna(id, usuario.id);
@@ -76,7 +77,7 @@ export class TareasController {
   @ApiBadRequestResponse({ description: 'Datos inválidos o campos de más' })
   @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   actualizar(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() datos: ActualizarTareaDto,
     @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
@@ -88,7 +89,7 @@ export class TareasController {
   @ApiOkResponse({ description: 'Tarea eliminada (registra el evento "eliminada" en el historial)' })
   @ApiNotFoundResponse({ description: 'No existe o no pertenece al usuario' })
   eliminar(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @UsuarioActual() usuario: UsuarioAutenticado,
   ) {
     return this.tareasService.eliminar(id, usuario.id);

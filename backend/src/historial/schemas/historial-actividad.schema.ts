@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 
 @Schema({ timestamps: { createdAt: 'fecha', updatedAt: false } })
@@ -40,6 +40,13 @@ export class HistorialActividad {
   })
   @Prop({ required: true })
   titulo: string;
+
+  @ApiPropertyOptional({
+    description: 'Detalle del cambio (fecha límite, estado, prioridad, avance de subtareas)',
+    example: 'Estado: pendiente → en_progreso; Subtareas: 0/2 → 1/2',
+  })
+  @Prop({ type: String, required: false })
+  detalle?: string;
 
   @ApiProperty({
     description: 'Fecha y hora del evento (la asigna el sistema)',

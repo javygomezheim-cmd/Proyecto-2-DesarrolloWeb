@@ -1,5 +1,6 @@
 import "../styles/DetalleActividad.css";
 import ListaSubtareas from "../components/ListaSubtareas";
+import { CLASE_PRIORIDAD, ETIQUETA_ESTADO } from "../constants/tareas";
 
 export default function DetalleActividadPage({
   actividadId,
@@ -86,6 +87,14 @@ export default function DetalleActividadPage({
       }
     : obtenerUrgencia(actividad.fechaLimite);
 
+  const subtareas = actividad.subtareas ?? [];
+  const hechas = subtareas.filter((s) => s.hecha).length;
+  const avance = subtareas.length
+    ? Math.round((hechas / subtareas.length) * 100)
+    : actividad.completada
+      ? 100
+      : 0;
+
   function handleEliminar() {
     if (window.confirm("¿Eliminar esta actividad?")) {
       eliminarActividad(actividad.id);
@@ -109,9 +118,16 @@ export default function DetalleActividadPage({
 
       <h1 className="h2 fw-bold">{actividad.titulo}</h1>
 
-      <div className="d-flex gap-2 mb-4">
-        <span className={`badge ${urgencia.clase}`}>
-          {urgencia.texto}
+      <div className="d-flex gap-2 mb-4 flex-wrap">
+        <span className={`badge ${urgencia.clase}`}>{urgencia.texto}</span>
+        <span className="badge bg-dark">
+          {actividad.tipo === "evaluacion" ? "Evaluación" : "Tarea"}
+        </span>
+        <span className={`badge ${CLASE_PRIORIDAD[actividad.prioridad] ?? "bg-secondary"}`}>
+          Prioridad {actividad.prioridad ?? "media"}
+        </span>
+        <span className="badge bg-secondary">
+          {ETIQUETA_ESTADO[actividad.estado] ?? "Pendiente"}
         </span>
       </div>
 
@@ -149,6 +165,22 @@ export default function DetalleActividadPage({
             {actividad.descripcion}
           </p>
 
+          <div className="mb-3">
+            <div className="d-flex justify-content-between small text-muted mb-1">
+              <span>Avance</span>
+              <span>{hechas}/{subtareas.length} subtareas · {avance}%</span>
+            </div>
+            <div
+              className="progress"
+              role="progressbar"
+              aria-valuenow={avance}
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <div className="progress-bar" style={{ width: `${avance}%` }} />
+            </div>
+          </div>
+          
           <ListaSubtareas
             subtareas={actividad.subtareas}
             onToggle={(idSubtarea) =>

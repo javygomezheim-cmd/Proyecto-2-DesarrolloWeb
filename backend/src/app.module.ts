@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,11 +24,11 @@ import { AuthModule } from './auth/auth.module.js';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres' as const,
-        host: 'localhost',
-        port: 5432,
-        username: config.get<string>('POSTGRES_USER'),
-        password: config.get<string>('POSTGRES_PASSWORD'),
-        database: config.get<string>('POSTGRES_DB'),
+        host: config.getOrThrow<string>('POSTGRES_HOST'),
+        port: Number(config.getOrThrow<string>('POSTGRES_PORT')),
+        username: config.getOrThrow<string>('POSTGRES_USER'),
+        password: config.getOrThrow<string>('POSTGRES_PASSWORD'),
+        database: config.getOrThrow<string>('POSTGRES_DB'),
         autoLoadEntities: true,
         synchronize: false,
       }),
@@ -39,9 +38,16 @@ import { AuthModule } from './auth/auth.module.js';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        uri: `mongodb://${encodeURIComponent(config.getOrThrow<string>('MONGO_USER'))}:${encodeURIComponent(config.getOrThrow<string>('MONGO_PASSWORD'))}@localhost:27017/${encodeURIComponent(config.getOrThrow<string>('MONGO_DB'))}?authSource=admin`,
-      }),
+      useFactory: (config: ConfigService) => {
+        const usuario = encodeURIComponent(config.getOrThrow<string>('MONGO_USER'));
+        const clave = encodeURIComponent(config.getOrThrow<string>('MONGO_PASSWORD'));
+        const host = config.get<string>('MONGO_HOST', 'localhost');
+        const puerto = config.get<string>('MONGO_PORT', '27017');
+        const base = encodeURIComponent(config.getOrThrow<string>('MONGO_DB'));
+        return {
+          uri: `mongodb://${usuario}:${clave}@${host}:${puerto}/${base}?authSource=admin`,
+        };
+      },
     }),
 
     UsuariosModule,
@@ -53,4 +59,4 @@ import { AuthModule } from './auth/auth.module.js';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

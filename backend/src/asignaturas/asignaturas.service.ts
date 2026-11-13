@@ -1,9 +1,4 @@
-
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -15,24 +10,18 @@ export class AsignaturasService {
   constructor(
     @InjectRepository(Asignatura)
     private readonly asignaturasRepository: Repository<Asignatura>,
-
     private readonly historialService: HistorialService,
-  ) { }
+  ) {}
 
   async buscarTodas(usuarioId: string): Promise<Asignatura[]> {
     return this.asignaturasRepository.find({
-      where: {
-        usuario: { id: usuarioId },
-      },
+      where: { usuario: { id: usuarioId } },
     });
   }
 
   async buscarUna(id: string, usuarioId: string): Promise<Asignatura> {
     const asignatura = await this.asignaturasRepository.findOne({
-      where: {
-        id,
-        usuario: { id: usuarioId },
-      },
+      where: { id, usuario: { id: usuarioId } },
     });
 
     if (!asignatura) {
@@ -42,19 +31,16 @@ export class AsignaturasService {
     return asignatura;
   }
 
-  async crear(
-    datos: Partial<Asignatura>,
-    usuarioId: string,
-  ): Promise<Asignatura> {
+  async crear(datos: Partial<Asignatura>, usuarioId: string): Promise<Asignatura> {
     const nuevaAsignatura = this.asignaturasRepository.create({
       nombre: datos.nombre,
       profesor: datos.profesor,
       color: datos.color,
+      periodo: datos.periodo,
       usuario: { id: usuarioId },
     });
 
-    const asignaturaGuardada =
-      await this.asignaturasRepository.save(nuevaAsignatura);
+    const asignaturaGuardada = await this.asignaturasRepository.save(nuevaAsignatura);
 
     await this.historialService.registrarEvento({
       usuarioId,
@@ -77,9 +63,9 @@ export class AsignaturasService {
     asignatura.nombre = datos.nombre ?? asignatura.nombre;
     asignatura.profesor = datos.profesor ?? asignatura.profesor;
     asignatura.color = datos.color ?? asignatura.color;
+    asignatura.periodo = datos.periodo ?? asignatura.periodo;
 
-    const asignaturaActualizada =
-      await this.asignaturasRepository.save(asignatura);
+    const asignaturaActualizada = await this.asignaturasRepository.save(asignatura);
 
     await this.historialService.registrarEvento({
       usuarioId,
@@ -92,24 +78,20 @@ export class AsignaturasService {
     return asignaturaActualizada;
   }
 
-  
-async eliminar(id: string, usuarioId: string): Promise<void> {
-  const asignatura = await this.buscarUna(id, usuarioId);
+  async eliminar(id: string, usuarioId: string): Promise<void> {
+    const asignatura = await this.buscarUna(id, usuarioId);
 
-  // Guardamos los datos antes de eliminar
-  const entidadId = asignatura.id;
-  const titulo = asignatura.nombre;
+    const entidadId = asignatura.id;
+    const titulo = asignatura.nombre;
 
-  await this.asignaturasRepository.remove(asignatura);
+    await this.asignaturasRepository.remove(asignatura);
 
-  // Registramos el evento en MongoDB
-  await this.historialService.registrarEvento({
-    usuarioId,
-    accion: 'eliminada',
-    entidad: 'asignatura',
-    entidadId,
-    titulo,
-  });
-}
-
+    await this.historialService.registrarEvento({
+      usuarioId,
+      accion: 'eliminada',
+      entidad: 'asignatura',
+      entidadId,
+      titulo,
+    });
+  }
 }

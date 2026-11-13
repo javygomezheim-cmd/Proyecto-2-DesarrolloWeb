@@ -10,10 +10,10 @@ import HistorialPage from "./pages/HistorialPage";
 import LibrosPage from "./pages/LibrosPage.jsx";
 import { 
   obtenerAsignaturas, crearAsignaturaApi, eliminarAsignaturaApi,
-  obtenerActividadesApi, crearActividadApi, actualizarActividadApi, eliminarActividadApi 
+  obtenerActividadesApi, crearActividadApi, actualizarActividadApi, eliminarActividadApi,
+  obtenerUsuarioGuardado, cerrarSesion 
 } from "./services/api";
 import LoginPage from "./pages/LoginPage";
-import { obtenerUsuarioGuardado, cerrarSesion } from "./services/api";
 
 
 export default function App() {
@@ -79,43 +79,49 @@ function salir() {
   async function agregarActividad(datos) {
     try {
       const nueva = await crearActividadApi(datos);
-      setActividades([...actividades, nueva]);
+      setActividades((actuales) => [...actuales, nueva]);
+      return true;
     } catch (err) {
-      alert("Error al crear la actividad en el servidor.");
+      alert(err.message || "Error al crear la actividad en el servidor.");
+      return false;
     }
   }
 
   async function actualizarActividad(id, cambios) {
     try {
       const actualizada = await actualizarActividadApi(id, cambios);
-      setActividades(actividades.map((a) => (a.id === id ? actualizada : a)));
+      setActividades((actuales) =>
+        actuales.map((a) => (a.id === id ? actualizada : a)),
+      );
+      return true;
     } catch (err) {
-      alert("Error al actualizar la actividad.");
+      alert(err.message || "Error al actualizar la actividad.");
+      return false;
     }
   }
 
-  async function eliminarActividad(id) {
+    async function eliminarActividad(id) {
     try {
       await eliminarActividadApi(id);
-      setActividades(actividades.filter((a) => a.id !== id));
+      setActividades((actuales) => actuales.filter((a) => a.id !== id));
     } catch (err) {
-      alert("Error al eliminar la actividad.");
+      alert(err.message || "Error al eliminar la actividad.");
     }
   }
 
   async function toggleSubtarea(idActividad, idSubtarea) {
-    const act = actividades.find(a => a.id === idActividad);
+    const act = actividades.find((a) => a.id === idActividad);
     if (!act) return;
 
-    const nuevasSubtareas = act.subtareas.map(s => 
-      s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s
+    const nuevasSubtareas = (act.subtareas || []).map((s) =>
+      s.id === idSubtarea ? { ...s, hecha: !s.hecha } : s,
     );
 
     await actualizarActividad(idActividad, { subtareas: nuevasSubtareas });
   }
 
   async function toggleCompletada(id) {
-    const act = actividades.find(a => a.id === id);
+    const act = actividades.find((a) => a.id === id);
     if (!act) return;
 
     await actualizarActividad(id, { completada: !act.completada });
@@ -124,24 +130,35 @@ function salir() {
   async function agregarAsignatura(datos) {
     try {
       const nuevaCreada = await crearAsignaturaApi(datos);
-      setAsignaturas([...asignaturas, nuevaCreada]);
-    } catch (e) {
-      alert("No se pudo guardar la asignatura en el servidor backend.");
+      setAsignaturas((actuales) => [...actuales, nuevaCreada]);
+    } catch (err) {
+      alert(err.message || "No se pudo guardar la asignatura en el servidor backend.");
     }
   }
 
   async function eliminarAsignaturas(idsAEliminar) {
     const ids = Array.isArray(idsAEliminar) ? idsAEliminar : [idsAEliminar];
+    const eliminadas = [];
+
     try {
       for (const id of ids) {
-        await eliminarAsignaturaApi(id);
+        const ok = await eliminarAsignaturaApi(id);
+        if (!ok) throw new Error("Error al eliminar asignatura");
+        eliminadas.push(id);
       }
-      setAsignaturas((actuales) => actuales.filter((a) => !ids.includes(a.id)));
-      setActividades((actuales) =>
-        actuales.filter((actividad) => !ids.includes(actividad.asignatura?.id)),
-      );
     } catch (err) {
-      alert("Error al eliminar asignaturas.");
+      alert(err.message || "Error al eliminar asignaturas.");
+    } finally {
+      if (eliminadas.length > 0) {
+        setAsignaturas((actuales) => actuales.filter((a) => !eliminadas.includes(a.id)));
+        setActividades((actuales) =>
+          actuales.filter(
+            (actividad) =>
+              !eliminadas.includes(actividad.asignaturaId) &&
+              !eliminadas.includes(actividad.asignatura?.id),
+          ),
+        );
+      }
     }
   }
 

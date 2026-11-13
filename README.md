@@ -1,398 +1,244 @@
-# Actividades Académicas
+# Agenda Académica Personal — Hito 3 (Plataforma Web Full Stack)
 
-## Integrantes
+**Asignatura:** Desarrollo Web y Móvil · Segundo semestre 2026 · **Caso 3.2: Agenda académica personal**
+
+## 1. Integrantes
 
 * Tomas Contreras
 * Marcos Contreras
 * Cristobal Magnata
 * Javier Gomez
 
-## Descripción del proyecto
+## 2. Problema y usuarios objetivo
 
-**Actividades Académicas** es una aplicación web desarrollada con React que permite a estudiantes universitarios organizar y gestionar sus actividades académicas.
+Los estudiantes de educación superior manejan varias asignaturas con tareas, controles, certámenes y entregas en fechas distintas. La información se dispersa y se pierden vencimientos. La plataforma centraliza asignaturas, tareas, evaluaciones y subtareas, con calendario, prioridades, estados, seguimiento de avance e historial de cambios.
 
-La problemática que aborda el proyecto es la dificultad de mantener organizadas las distintas tareas, trabajos, controles y entregas de diferentes asignaturas. La aplicación centraliza esta información en un solo lugar, permitiendo consultar las actividades pendientes, revisar sus fechas de entrega, organizarlas por asignatura y llevar un registro de las actividades completadas.
+**Usuarios:** estudiantes universitarios y de educación superior que necesitan planificar su carga académica por período.
 
-La aplicación utiliza almacenamiento local del navegador para conservar la información del usuario y además incorpora APIs públicas para complementar sus funcionalidades.
+## 3. Continuidad con el Taller 2 y funcionalidades del Hito 3
 
-## Usuarios objetivo
+| Aspecto | Taller 2 | Hito 3 |
+|---|---|---|
+| Datos | `localStorage` + JSON locales | API REST propia + PostgreSQL + MongoDB |
+| Usuarios | Sin cuentas | Registro, login y JWT; cada usuario ve solo sus datos |
+| Asignaturas | Nombre, profesor, color | Se agrega **período académico** (`periodo`, ej. `2026-2`) |
+| Actividades | Título, fecha, descripción, subtareas | Se agregan **tipo** (tarea/evaluación), **prioridad**, **estado**, **% de avance** |
+| Historial | Actividades completadas (local) | **Historial de actividad en MongoDB**, con detalle de cambios |
+| API pública | Nager.Date y Open Library | Se mantienen (consumo desde el frontend) |
 
-La aplicación está dirigida principalmente a:
+Funcionalidades obligatorias del caso: asignaturas y períodos, evaluaciones/tareas/subtareas, calendario con fechas, prioridades y estados, seguimiento de avance, listado de pendientes/vencimientos e historial de actividad y cambios.
 
-* Estudiantes universitarios.
-* Estudiantes de educación superior que tengan varias asignaturas y actividades.
-* Usuarios que necesiten organizar trabajos, tareas, controles y fechas de entrega.
+## 4. Arquitectura
 
-## Funcionalidades principales
+```
+ ┌────────────────────┐   HTTP/JSON + JWT    ┌─────────────────────────────┐
+ │  React 19 (Vite)   │ ───────────────────► │  NestJS API REST            │
+ │  localhost:5173    │ ◄─────────────────── │  localhost:3000             │
+ │  - páginas         │                      │  - Controllers + Guards     │
+ │  - services/api.js │                      │  - Services (reglas)        │
+ └─────────┬──────────┘                      │  - DTO + ValidationPipe     │
+           │                                 │  - Swagger /api/docs        │
+           │ fetch (API pública)             └───────┬─────────────┬───────┘
+           ▼                                         │ TypeORM     │ Mongoose
+ ┌────────────────────┐                      ┌───────▼──────┐ ┌────▼─────────┐
+ │ Nager.Date         │                      │ PostgreSQL 16│ │  MongoDB 7   │
+ │ Open Library       │                      │ usuarios     │ │ historial    │
+ └────────────────────┘                      │ asignaturas  │ │ actividads   │
+                                             │ tareas       │ │ (eventos)    │
+                                             └──────────────┘ └──────────────┘
+```
 
-### Gestión de actividades
+| Componente | Responsabilidad |
+|---|---|
+| React | Interfaz, navegación, formularios, estados de carga/error/vacío, consumo de API |
+| NestJS | Reglas de negocio, validación, autenticación, coordinación de ambas BD |
+| PostgreSQL | Datos relacionales y transaccionales (usuarios, asignaturas, tareas/evaluaciones) |
+| MongoDB | Eventos de actividad y cambios (documentos de solo agregado) |
+| Swagger | Contrato y pruebas interactivas de la API |
+| Docker Compose | PostgreSQL, MongoDB, backend y frontend reproducibles, con esquema y datos de prueba |
 
-* Crear nuevas actividades académicas.
-* Editar actividades existentes.
-* Eliminar actividades.
-* Marcar actividades como completadas.
-* Visualizar el detalle de cada actividad.
-* Agregar y gestionar subtareas.
-* Visualizar fechas y horas de entrega.
-* Identificar actividades atrasadas, urgentes, próximas y normales.
-* Buscar actividades por título o descripción.
-* Filtrar actividades por prioridad.
-* Filtrar actividades por asignatura.
+## 5. Tecnologías y versiones
 
-### Gestión de asignaturas
+| Capa | Tecnología |
+|---|---|
+| Frontend | React ^19.2.8, Vite ^8.3.0, Bootstrap ^5.3.8, ESLint ^10.10.0 |
+| Backend | NestJS ^12.0.1, TypeORM ^1.1.2, Mongoose ^9.12.1, `pg` ^8.23.1, class-validator ^0.15.1, bcrypt ^6.0.0, `@nestjs/jwt` ^12.0.4, `@nestjs/swagger` ^12.1.1, TypeScript ^6.0.2 |
+| Pruebas | Vitest ^4.1.2, Supertest ^7.0.0 |
+| Bases de datos | PostgreSQL 16 (`postgres:16`), MongoDB 7 (`mongo:7`) |
+| Infraestructura | Docker Compose |
 
-* Visualizar las asignaturas registradas.
-* Crear nuevas asignaturas.
-* Asociar actividades a una asignatura.
-* Visualizar la cantidad de actividades pendientes por asignatura.
-* Visualizar el próximo trabajo pendiente de cada asignatura.
-* Eliminar una o varias asignaturas.
-* Eliminar las actividades asociadas al eliminar una asignatura.
+## 6. Modelo SQL (PostgreSQL)
 
-### Calendario
+Script: `database/init.sql`. Datos de prueba: `database/seed.sql`.
 
-* Visualizar las actividades organizadas por fecha.
-* Navegar entre los diferentes meses.
-* Volver al mes actual.
-* Identificar actividades completadas.
-* Mostrar feriados de Chile.
-* Consultar los feriados mediante una API pública.
+```
+usuarios (1) ──< asignaturas (1) ──< tareas >── (1) usuarios
+```
 
-### Historial
+| Tabla | Columnas principales | Restricciones |
+|---|---|---|
+| `usuarios` | `id` uuid PK, `nombre`, `correo`, `password_hash`, `creado_en` | `UNIQUE(correo)` |
+| `asignaturas` | `id` PK, `nombre`, `profesor`, `color`, `periodo`, `usuario_id` FK, `creado_en` | FK `ON DELETE CASCADE`; `CHECK periodo ~ '^[0-9]{4}-[12]$'` |
+| `evaluaciones` (vista) | Mismas columnas que `tareas` | `SELECT * FROM tareas WHERE tipo = 'evaluacion'` |
+| `tareas` | `id` PK, `titulo`, `descripcion`, `fecha_limite` timestamptz, `completada`, `tipo`, `prioridad`, `estado`, `subtareas` jsonb, `asignatura_id` FK, `usuario_id` FK, `creado_en` | FK `ON DELETE CASCADE`; `CHECK` de `tipo`, `prioridad`, `estado` y `completada = (estado = 'completada')` |
 
-* Visualizar las actividades que han sido completadas.
-* Consultar información de las actividades finalizadas.
-* Acceder al detalle de una actividad desde el historial.
+* **Evaluaciones:** se modelan como `tareas` con `tipo = 'evaluacion'` (comparten fecha, prioridad, estado y subtareas) y se exponen en SQL mediante la vista `evaluaciones`. Su historial se registra con `entidad: 'evaluacion'`.
+* **Subtareas:** arreglo `jsonb` dentro de la tarea (`{ id, texto, hecha }`). El % de avance se calcula como `hechas / total`.
+* **Índices:** `(usuario_id, fecha_limite)` para listados y vencimientos; `asignatura_id` para filtros.
 
-### Libros
+## 7. Justificación de MongoDB frente a SQL
 
-* Buscar libros utilizando la API pública de Open Library.
-* Mostrar título, autores, año de publicación y portada.
-* Acceder a la información del libro en Open Library.
-* Seleccionar una asignatura como contexto para la búsqueda de material bibliográfico.
+MongoDB almacena el **historial de actividad y cambios** (colección `historialactividads`). Cada documento es un evento inmutable:
 
-### Persistencia de información
+```json
+{
+  "usuarioId": "a0000000-0000-4000-8000-000000000001",
+  "accion": "editada",
+  "entidad": "evaluacion",
+  "entidadId": "c0000000-0000-4000-8000-000000000001",
+  "titulo": "Control 1 de integrales",
+  "detalle": "Estado: pendiente → en_progreso; Subtareas: 0/2 → 1/2",
+  "fecha": "2026-11-13T12:00:00.000Z"
+}
+```
 
-La aplicación utiliza `localStorage` del navegador para guardar:
+* **No duplica SQL:** PostgreSQL guarda el estado actual; MongoDB guarda la secuencia de eventos (qué pasó y cuándo), incluyendo eventos de elementos ya eliminados.
+* **Esquema flexible:** `detalle` varía según el evento (cambio de fecha, estado, avance) sin migrar tablas.
+* **Escritura intensiva y solo agregado:** cada operación de asignaturas y tareas agrega un documento sin bloquear las tablas relacionales.
+* **Integración real:** `AsignaturasService` y `TareasService` llaman a `HistorialService.registrarEvento()`; el frontend lo consulta con `GET /historial`.
 
-* Actividades.
-* Asignaturas.
+## 8. API REST y Swagger
 
-De esta manera, los datos permanecen disponibles al volver a cargar la aplicación en el mismo navegador.
+* Swagger UI: **http://localhost:3000/api/docs** (usar "Authorize" con el token de `POST /auth/login`).
+* Validación global: `ValidationPipe` con `whitelist`, `forbidNonWhitelisted` y `transform`.
+* Los `:id` se validan con `ParseUUIDPipe` (UUID inválido → 400).
 
-## Tecnologías utilizadas
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| POST | `/usuarios/registro` | No | Registrar usuario |
+| POST | `/auth/login` | No | Obtener `accessToken` |
+| GET | `/auth/perfil` | Sí | Usuario del token |
+| GET / PUT / DELETE | `/usuarios/me` | Sí | Ver, actualizar o eliminar mi cuenta |
+| GET / POST | `/asignaturas` | Sí | Listar / crear (incluye `periodo`) |
+| GET / PUT / DELETE | `/asignaturas/:id` | Sí | Ver / actualizar / eliminar |
+| GET / POST | `/tareas` | Sí | Listar / crear tarea o evaluación (`tipo`) |
+| GET / PUT / DELETE | `/tareas/:id` | Sí | Ver / actualizar / eliminar |
+| GET | `/historial?entidad=&limite=` | Sí | Historial de actividad (MongoDB) |
 
-### Frontend
+Códigos usados: 200, 201, 204, 400 (validación), 401 (token), 404 (no existe o no pertenece al usuario), 409 (correo duplicado).
 
-* **React 19.2.8**
-* **React DOM 19.2.8**
-* **JavaScript**
-* **JSX**
-* **Bootstrap 5.3.8**
-* **CSS**
+## 9. APIs públicas
 
-### Herramientas de desarrollo
+### Nager.Date (feriados de Chile)
 
-* **Vite 8.3.0**
-* **ESLint 10.10.0**
-* **Git**
-* **GitHub**
-* **Visual Studio Code**
+* Documentación: https://date.nager.at/
+* Endpoint: `GET https://date.nager.at/api/v3/PublicHolidays/{año}/CL` (el año es el año actual).
+* Uso: `frontend/src/services/publicApi.js` → se muestran los feriados en el calendario junto a los vencimientos.
+* Integración desde el **frontend** (no requiere clave ni lógica de negocio). Ante fallo, el calendario sigue mostrando las actividades sin feriados.
 
-### APIs públicas
+### Open Library (búsqueda de libros)
 
-* **Nager.Date API:** utilizada para obtener los feriados públicos de Chile.
-* **Open Library API:** utilizada para realizar búsquedas de libros.
+* Documentación: https://openlibrary.org/developers/api
+* Endpoint: `GET https://openlibrary.org/search.json?q=...&limit=12&fields=...`
+* Uso: `frontend/src/pages/LibrosPage.jsx` → bibliografía de apoyo por asignatura. Maneja estados de carga, vacío y error.
+* Integración desde el **frontend** (consulta pública de solo lectura).
 
-## Instrucciones para ejecutar el proyecto
+La API pública es complementaria: no sustituye al backend propio.
+
+## 10. Ejecución con Docker Compose
 
 ### Requisitos
 
-Se necesita tener instalado:
+Docker y Docker Compose. Node.js 22+ y npm solo para el modo desarrollo local.
 
-* Node.js
-* npm
-* Git
+### Opción A: todo con Docker Compose (recomendada)
 
-### Instalación
+1. Clonar y entrar al repositorio.
+2. Crear el archivo de entorno y generar el secreto JWT:
+   ```bash
+   cp .env.example .env
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+   Pegar el resultado en `JWT_SECRET` dentro de `.env`.
+3. Construir y levantar los 4 servicios (crea las tablas con `init.sql` y carga `seed.sql`):
+   ```bash
+   docker compose up -d --build
+   docker compose ps
+   ```
+4. Abrir:
+   * Aplicación: http://localhost:5173
+   * Swagger: http://localhost:3000/api/docs
+   * Usuario de prueba: `demo@agenda.cl` / `Demo1234`
 
-Clonar el repositorio:
+Reiniciar datos desde cero: `docker compose down -v && docker compose up -d --build`.
 
-```bash
-git clone https://github.com/javygomezheim-cmd/Proyecto-2-DesarrolloWeb.git
-```
-
-Ingresar a la carpeta del proyecto:
-
-```bash
-cd Proyecto-2-DesarrolloWeb
-```
-
-Instalar las dependencias:
-
-```bash
-npm install
-```
-
-### Ejecutar en modo desarrollo
+### Opción B: desarrollo local (bases de datos en Docker)
 
 ```bash
-npm run dev
+cp .env.example .env
+cp .env.example backend/.env
+cp frontend/.env.example frontend/.env
+docker compose up -d postgres mongo
+cd backend && npm install && npm run start:dev      # terminal 1
+cd frontend && npm install && npm run dev           # terminal 2
 ```
 
-Luego abrir en el navegador la dirección indicada por Vite, normalmente:
-
-```text
-http://localhost:5173
-```
-
-### Otros comandos disponibles
-
-Para generar la versión de producción:
-
-```bash
-npm run build
-```
-
-Para previsualizar la versión de producción:
-
-```bash
-npm run preview
-```
-
-Para revisar el código mediante ESLint:
-
-```bash
-npm run lint
-```
-
-## Estructura general de la aplicación
-
-La estructura principal del proyecto es:
-
-```text
-Proyecto-2-DesarrolloWeb/
-│
-├── public/
-│
-├── src/
-│   ├── assets/
-│   │
-│   ├── components/
-│   │   ├── AsignaturaCard.jsx
-│   │   ├── AsignaturaModal.jsx
-│   │   ├── AsignaturasEstadisticas.jsx
-│   │   ├── ConfirmarEliminarModal.jsx
-│   │   ├── FormularioActividad.jsx
-│   │   ├── ListaSubtareas.jsx
-│   │   └── Sidebar.jsx
-│   │
-│   ├── data/
-│   │   ├── actividades.json
-│   │   └── asignaturas.json
-│   │
-│   ├── pages/
-│   │   ├── AsignaturasPage.jsx
-│   │   ├── Calendariopage.jsx
-│   │   ├── DetalleActividadPage.jsx
-│   │   ├── HistorialPage.jsx
-│   │   ├── LibrosPage.jsx
-│   │   ├── ListaActividadesPage.jsx
-│   │   └── NuevaActividadPage.jsx
-│   │
-│   ├── services/
-│   │   └── publicApi.js
-│   │
-│   ├── styles/
-│   │   ├── DetalleActividad.css
-│   │   └── styles.css
-│   │
-│   ├── App.jsx
-│   └── main.jsx
-│
-├── .gitignore
-├── eslint.config.js
-├── index.html
-├── package.json
-├── package-lock.json
-├── vite.config.js
-└── README.md
-```
-
-### Organización
-
-* `components/`: contiene componentes reutilizables de la interfaz.
-* `data/`: contiene los datos iniciales de actividades y asignaturas.
-* `pages/`: contiene las diferentes vistas principales de la aplicación.
-* `services/`: contiene funciones relacionadas con servicios externos.
-* `styles/`: contiene los estilos propios de la aplicación.
-* `App.jsx`: administra el estado principal y la navegación entre las vistas.
-* `main.jsx`: punto de entrada de la aplicación.
-
-La navegación entre las páginas se realiza mediante el estado de React, utilizando la variable `vista`, sin utilizar React Router.
-
-## API pública utilizada
-
-### Nager.Date API
-
-La aplicación utiliza **Nager.Date** para obtener los feriados públicos de Chile correspondientes al año 2026.
-
-La información obtenida permite complementar el calendario de actividades y mostrar los feriados junto con las fechas académicas.
-
-### Documentación oficial
-
-[Documentación oficial de Nager.Date](https://date.nager.at/)
-
-### Endpoint utilizado
-
-```text
-GET https://date.nager.at/api/v3/PublicHolidays/2026/CL
-```
-
-El endpoint recibe:
-
-* `2026`: año consultado.
-* `CL`: código de país correspondiente a Chile.
-
-La respuesta contiene información sobre los feriados, incluyendo su fecha y nombre local.
-
-La aplicación transforma los datos recibidos para utilizar principalmente:
-
-* Fecha.
-* Nombre del feriado.
-* Tipo de feriado.
-
-### Justificación funcional
-
-La API de Nager.Date se utiliza porque permite incorporar información de feriados reales al calendario de la aplicación.
-
-Esto permite que el estudiante pueda visualizar sus actividades académicas considerando también fechas festivas, entregando mayor contexto al calendario.
-
----
-
-## Open Library API
-
-La aplicación también utiliza **Open Library** para realizar búsquedas de libros.
-
-### Documentación oficial
-
-[Open Library API](https://openlibrary.org/developers/api)
-
-### Endpoint utilizado
-
-```text
-https://openlibrary.org/search.json
-```
-
-La aplicación realiza solicitudes utilizando parámetros de búsqueda, por ejemplo:
-
-```text
-https://openlibrary.org/search.json?q=algorithms&limit=12&fields=key,title,author_name,first_publish_year,cover_i,isbn,subject
-```
-
-Se utiliza el método:
-
-```text
-GET
-```
-
-La respuesta permite obtener información como:
-
-* Título.
-* Autor.
-* Año de publicación.
-* Portada.
-* Identificador del libro.
-* Asignaturas asociadas al libro.
-
-### Justificación funcional
-
-Open Library permite complementar la aplicación con una herramienta de búsqueda bibliográfica. Los estudiantes pueden buscar libros relacionados con sus necesidades académicas y acceder posteriormente a la información disponible en Open Library.
-
-## Uso de Inteligencia Artificial
-
-Durante el desarrollo del proyecto se utilizaron herramientas de Inteligencia Artificial como apoyo al proceso de desarrollo.
-
-### Herramientas utilizada
-
-**ChatGPT**
-**Claude**
-**Gemini**
-
-### Propósito
-
-La herramienta fue utilizada como apoyo en diferentes etapas del desarrollo, principalmente para:
-
-* Resolver dudas relacionadas con React y JavaScript.
-* Detectar y solucionar errores en el código.
-* Comprender conceptos de React.
-* Revisar posibles problemas de implementación.
-* Apoyar la creación y modificación de componentes.
-* Apoyar la documentación del proyecto.
-* Revisar la estructura general de la aplicación.
-
-### Prompt o consulta representativa
-
-Un ejemplo de consulta realizada fue:
-
-> "Tengo este código de React y quiero agregar una funcionalidad sin cambiar lo que ya tengo. Explícame qué debo modificar y como hacerlo"
-
-También se utilizaron consultas para comprender errores específicos, revisar componentes y conectar funcionalidades entre las distintas páginas.
-
-### Resultado
-
-La herramienta entregó explicaciones, recomendaciones y ejemplos de código que sirvieron como apoyo para implementar y corregir distintas partes de la aplicación.
-
-Entre las áreas en las que se utilizó como apoyo se encuentran:
-
-* Manejo de estados con `useState`.
-* Uso de `useEffect`.
-* Persistencia mediante `localStorage`.
-* Componentización de React.
-* Integración de APIs públicas.
-* Manejo de errores.
-* Organización del proyecto.
-* Corrección de errores de código.
-
-### Modificación humana
-
-El código sugerido por la herramienta fue revisado y adaptado por los integrantes del equipo antes de incorporarlo al proyecto.
-
-Se realizaron modificaciones según las necesidades de la aplicación, se probaron las funcionalidades y se descartaron o corrigieron recomendaciones que no se ajustaban al proyecto.
-
-La implementación final fue integrada y probada dentro de la estructura existente del proyecto.
-
-### Aprendizaje
-
-El uso de Inteligencia Artificial permitió reforzar conocimientos sobre React, especialmente sobre el manejo de estados, componentes, efectos, eventos y comunicación entre componentes.
-
-También permitió comprender mejor el uso de APIs mediante `fetch`, el almacenamiento de información utilizando `localStorage` y la forma de organizar una aplicación React en componentes y páginas.
-
-La IA fue utilizada como herramienta de apoyo y no como reemplazo de la comprensión del código desarrollado.
-
-## Trabajo colaborativo y Git
-
-El proyecto fue desarrollado utilizando Git y GitHub para mantener un flujo de trabajo colaborativo.
-
-Se utilizaron las ramas principales:
-
-```text
-main
-develop
-```
-
-Además, se utilizaron ramas `feature/` para desarrollar funcionalidades específicas antes de integrarlas a `develop`.
-
-El trabajo se integró mediante Pull Requests, permitiendo mantener un historial de cambios y facilitar la colaboración entre los integrantes del equipo.
-
-## Limitaciones conocidas
-
-* La información se almacena mediante `localStorage`, por lo que los datos están asociados al navegador utilizado.
-* No existe un backend ni una base de datos externa.
-* Si se eliminan los datos del navegador, las actividades y asignaturas creadas por el usuario pueden perderse.
-* Los feriados consultados mediante Nager.Date están configurados actualmente para el año 2026.
-* La disponibilidad de los feriados depende del funcionamiento de la API externa.
-* La búsqueda de libros depende de la disponibilidad de Open Library.
-* Los libros no necesariamente corresponden a un uso académico
-* La aplicación no cuenta con autenticación ni cuentas de usuario.
-* La navegación entre vistas se maneja mediante estado de React y no mediante un sistema de rutas como React Router.
+No ejecutar la opción B con los contenedores `backend` y `frontend` levantados (puertos 3000 y 5173 en uso).
+
+### Servicios y puertos
+
+| Servicio | Imagen | Puerto | Volumen / notas |
+|---|---|---|---|
+| `postgres` | `postgres:16` | 5432 | `postgres_data`, `init.sql`, `seed.sql` |
+| `mongo` | `mongo:7` | 27017 | `mongo_data` |
+| `backend` | build `./backend` (Node 22) | 3000 | Espera a que PostgreSQL y MongoDB estén saludables |
+| `frontend` | build `./frontend` (Vite + nginx) | 5173 | `VITE_API_URL` se fija al construir la imagen |
+
+## 11. Variables de entorno (`.env.example`)
+
+| Variable | Descripción |
+|---|---|
+| `POSTGRES_HOST`, `POSTGRES_PORT` | Servidor y puerto de PostgreSQL |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Credenciales y base de PostgreSQL (también las usa Compose) |
+| `MONGO_HOST`, `MONGO_PORT` | Servidor y puerto de MongoDB |
+| `MONGO_USER`, `MONGO_PASSWORD`, `MONGO_DB` | Credenciales y base de MongoDB (también las usa Compose) |
+| `JWT_SECRET` | Secreto de firma del token (obligatorio) |
+| `FRONTEND_URL` | Origen permitido por CORS |
+| `VITE_API_URL` | URL del backend para React (`frontend/.env` en desarrollo local; en Compose usa `http://localhost:3000` por defecto) |
+
+No se versionan archivos `.env` con secretos (`.gitignore`).
+
+## 12. Pruebas
+
+* Unitarias del backend (Vitest, con mocks): `cd backend && npm test`.
+* Prueba e2e actual: `npm run test:e2e` (solo `GET /`); levanta `AppModule`, por lo que requiere `backend/.env` y las bases de datos activas.
+* Verificación manual recomendada: registro/login, crear asignatura y tarea, editar tarea, completar, revisar `GET /historial`, probar un payload inválido (400) y un id no UUID (400) en Swagger.
+
+## 13. Limitaciones conocidas
+
+* La edición de asignaturas está disponible por API (`PUT /asignaturas/:id`, Swagger); la interfaz permite crear y eliminar.
+* No hay migraciones: el esquema se crea con `init.sql` al iniciar el volumen vacío.
+* Las evaluaciones son una variante (`tipo`) de tarea, sin nota ni ponderación.
+* Las subtareas viven en `jsonb`, sin tabla propia.
+* El token JWT se guarda en `localStorage`.
+* No hay pruebas automatizadas de integración con las bases de datos reales.
+* Si MongoDB no responde, la operación principal se completa y el error del historial solo queda en el log del servidor.
+
+## 14. Uso de Inteligencia Artificial
+
+| Elemento | Información |
+|---|---|
+| **Herramienta** | Claude, ChatGPT, Gemini |
+| **Propósito** | Análisis de brechas contra el enunciado, diseño del modelo, generación y depuración de código, documentación |
+| **Prompt representativo** | "Audita el repositorio frente a los requisitos obligatorios del Hito 3 – Caso 3.2, cita archivo y línea, y entrega correcciones concretas." |
+| **Resultado** | Lista de incumplimientos y bugs (contrato `asignatura`/`asignaturaId`, edición con 400 por `forbidNonWhitelisted`, Docker sin esquema), y parches para período, tipo, prioridad, estado, historial con detalle, `seed.sql` y este README |
+| **Validación humana** | Se revisó cada parche contra las entidades, DTO y pantallas; se ajustaron nombres, se probó el flujo en Swagger y React, y se descartó lo que no correspondía al caso |
+| **Aprendizaje** | Alinear DTO con `ValidationPipe`, normalizar relaciones TypeORM en el frontend, mantener coherencia entre `init.sql` y las entidades, y justificar MongoDB como registro de eventos |
+
+El equipo es responsable de comprender el código incorporado y puede explicarlo en la defensa.
+
+## 15. Trabajo colaborativo y Git
+
+* Ramas principales: `main` y `develop`; ramas `feature/*` para cada funcionalidad.
+* Integración mediante Pull Requests hacia `develop`.
+* La evolución desde el Taller 2 queda en el historial de commits del repositorio.

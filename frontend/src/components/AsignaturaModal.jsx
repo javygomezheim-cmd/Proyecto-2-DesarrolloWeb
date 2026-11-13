@@ -4,6 +4,7 @@ export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
   const [nombre, setNombre] = useState("");
   const [profesor, setProfesor] = useState("");
   const [color, setColor] = useState("#2563EB");
+  const [periodo, setPeriodo] = useState("2026-2");
   const [error, setError] = useState("");
 
   if (!visible) return null;
@@ -12,6 +13,7 @@ export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
     setNombre("");
     setProfesor("");
     setColor("#2563EB");
+    setPeriodo("2026-2");
     setError("");
     alCerrar();
   };
@@ -29,10 +31,16 @@ export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
       return;
     }
 
+    if (!/^\d{4}-[12]$/.test(periodo.trim())) {
+      setError("El período debe tener formato AAAA-S (ej. 2026-2).");
+      return;
+    }
+
     alGuardar({
       nombre: nombre.trim(),
       profesor: profesor.trim(),
       color: color.toUpperCase(),
+      periodo: periodo.trim(),
     });
 
     limpiarYSalir();
@@ -92,6 +100,19 @@ export default function AsignaturaModal({ visible, alCerrar, alGuardar }) {
                     value={profesor}
                     onChange={(e) => setProfesor(e.target.value)}
                     placeholder="Ej: Juan Pérez"
+                  />
+                </div>
+
+                {/* Período académico */}
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Período académico *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={periodo}
+                    onChange={(e) => setPeriodo(e.target.value)}
+                    placeholder="Ej: 2026-2"
+                    maxLength={6}
                   />
                 </div>
 

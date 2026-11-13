@@ -49,7 +49,15 @@ export default function Calendariopage({ actividades = [] }) {
   const obtenerFechaActividad = (act) => {
     const raw = act.fechaLimite || act.fecha || act.fecha_limite;
     if (!raw) return null;
-    return raw.split("T")[0];
+
+    const fecha = new Date(raw);
+    if (isNaN(fecha.getTime())) return null;
+
+    return formatearFechaStr(
+      fecha.getFullYear(),
+      fecha.getMonth(),
+      fecha.getDate()
+    );
   };
 
   const esCompletada = (act) => {

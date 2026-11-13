@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty, IsString } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CrearHistorialDto {
   @IsString()
@@ -18,4 +18,8 @@ export class CrearHistorialDto {
   @IsString()
   @IsNotEmpty()
   titulo: string;
+
+  @IsOptional()
+  @IsString()
+  detalle?: string;
 }

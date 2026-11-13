@@ -13,7 +13,7 @@ import { JwtAuthGuard } from './jwt-auth.guard.js';
       global: true,
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
+        secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: { expiresIn: 60 * 60 * 24 }, // 1 día, en segundos
       }),
     }),

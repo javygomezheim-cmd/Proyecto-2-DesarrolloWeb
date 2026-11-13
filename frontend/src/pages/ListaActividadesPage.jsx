@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { CLASE_PRIORIDAD, ETIQUETA_ESTADO } from "../constants/tareas";
+import AsignaturasEstadisticas from "../components/AsignaturasEstadisticas";
 
 export default function ListaActividadesPage({
   actividades,
@@ -34,10 +36,8 @@ export default function ListaActividadesPage({
 
     const textoBusqueda = quitarTildes(busqueda.toLowerCase());
 
-    const titulo = quitarTildes(actividad.titulo.toLowerCase());
-    const descripcion = quitarTildes(
-      actividad.descripcion.toLowerCase(),
-    );
+    const titulo = quitarTildes((actividad.titulo ?? "").toLowerCase());
+    const descripcion = quitarTildes((actividad.descripcion ?? "").toLowerCase());
 
     if (
       textoBusqueda &&
@@ -93,6 +93,10 @@ export default function ListaActividadesPage({
         />
       </div>
 
+      <div className="col-12 mt-3">
+        <AsignaturasEstadisticas asignaturas={asignaturas} actividades={actividades} />
+      </div>
+      
       <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
         <button
           className={`btn btn-sm rounded-pill ${
@@ -247,15 +251,26 @@ export default function ListaActividadesPage({
                           </p>
 
                           <h5 className="card-title fw-bold mb-2">
+                            {actividad.tipo === "evaluacion" ? "📝 " : ""}
                             {actividad.titulo}
                           </h5>
                         </div>
 
-                        <span
-                          className={`badge rounded-pill ${clasePrioridad}`}
-                        >
-                          {textoPrioridad}
-                        </span>
+                        <div className="d-flex flex-column align-items-end gap-1">
+                          <span className={`badge rounded-pill ${clasePrioridad}`}>
+                            {textoPrioridad}
+                          </span>
+                          <span
+                            className={`badge rounded-pill ${
+                              CLASE_PRIORIDAD[actividad.prioridad] ?? "bg-secondary"
+                            }`}
+                          >
+                            Prioridad {actividad.prioridad ?? "media"}
+                          </span>
+                          <span className="badge rounded-pill bg-light text-dark border">
+                            {ETIQUETA_ESTADO[actividad.estado] ?? "Pendiente"}
+                          </span>
+                        </div>
                       </div>
 
                       <p className="card-text text-muted mb-3">

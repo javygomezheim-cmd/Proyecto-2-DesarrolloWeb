@@ -80,9 +80,12 @@ export default function AsignaturaCard({
           <span>{asignatura.nombre}</span>
         </h4>
 
-        {/* Profesor */}
-        <p className="text-muted mb-2" style={{ fontSize: "0.9rem" }}>
+        {/* Profesor y período */}
+        <p className="text-muted mb-1" style={{ fontSize: "0.9rem" }}>
           👨‍🏫 {asignatura.profesor}
+        </p>
+        <p className="text-muted mb-2" style={{ fontSize: "0.85rem" }}>
+          🗓️ Período {asignatura.periodo ?? "2026-2"}
         </p>
 
         {/* Cantidad de actividades */}
