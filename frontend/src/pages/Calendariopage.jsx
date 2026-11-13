@@ -34,6 +34,7 @@ export default function Calendariopage({ actividades = [] }) {
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+
   const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
   const mesAnterior = () => setFechaActual(new Date(año, mes - 1, 1));
@@ -114,10 +115,17 @@ export default function Calendariopage({ actividades = [] }) {
     <div className="container-fluid p-4">
       <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
-          <h2 className="fw-bold mb-0">📅 Calendario Académico y Feriados</h2>
-          <small className="text-muted">Feriados y tus actividades académicas sincronizadas</small>
+          <h2 className="fw-bold mb-0">
+            <i className="bi bi-calendar3 text-primary me-2"></i>
+            Calendario Académico y Feriados
+          </h2>
+          <small className="text-muted">
+            Feriados y tus actividades académicas sincronizadas
+          </small>
         </div>
+
         <button className="btn btn-outline-primary" onClick={irAHoy}>
+          <i className="bi bi-calendar-check me-2"></i>
           Ir a Hoy
         </button>
       </div>
@@ -126,14 +134,24 @@ export default function Calendariopage({ actividades = [] }) {
         <div className="col-lg-8">
           <div className="card shadow-sm border-0">
             <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-              <button className="btn btn-outline-secondary btn-sm" onClick={mesAnterior}>
-                ◀ Mes Anterior
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={mesAnterior}
+              >
+                <i className="bi bi-chevron-left me-1"></i>
+                Mes Anterior
               </button>
+
               <h4 className="fw-bold m-0 text-primary">
                 {nombresMeses[mes]} {año}
               </h4>
-              <button className="btn btn-outline-secondary btn-sm" onClick={mesSiguiente}>
-                Mes Siguiente ▶
+
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={mesSiguiente}
+              >
+                Mes Siguiente
+                <i className="bi bi-chevron-right ms-1"></i>
               </button>
             </div>
 
@@ -141,15 +159,25 @@ export default function Calendariopage({ actividades = [] }) {
               {cargando ? (
                 <div className="text-center py-5">
                   <div className="spinner-border text-primary" role="status"></div>
-                  <p className="mt-2 text-muted">Cargando datos del calendario...</p>
+                  <p className="mt-2 text-muted">
+                    Cargando datos del calendario...
+                  </p>
                 </div>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "8px" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(7, 1fr)",
+                    gap: "8px",
+                  }}
+                >
                   {diasSemana.map((d, idx) => (
                     <div
                       key={d}
                       className={`text-center fw-bold py-2 rounded ${
-                        idx >= 5 ? "bg-light text-danger" : "bg-light text-dark"
+                        idx >= 5
+                          ? "bg-light text-danger"
+                          : "bg-light text-dark"
                       }`}
                     >
                       {d}
@@ -157,7 +185,14 @@ export default function Calendariopage({ actividades = [] }) {
                   ))}
 
                   {celdas.map((dia, idx) => {
-                    if (dia === null) return <div key={`empty-${idx}`} style={{ height: "120px" }} />;
+                    if (dia === null) {
+                      return (
+                        <div
+                          key={`empty-${idx}`}
+                          style={{ height: "120px" }}
+                        />
+                      );
+                    }
 
                     const fechaStr = formatearFechaStr(año, mes, dia);
                     const feriado = mapaFeriados[fechaStr];
@@ -174,9 +209,8 @@ export default function Calendariopage({ actividades = [] }) {
                             ? "bg-primary bg-opacity-10 border-primary"
                             : "bg-white"
                         }`}
-                        style={{ height: "120px", overflow: "hidden" }} // Mantiene el tamaño estricto
+                        style={{ height: "120px", overflow: "hidden" }}
                       >
-                        {/* Cabecera de la celda */}
                         <div className="d-flex justify-content-between w-100 align-items-center mb-1 flex-shrink-0">
                           <span
                             className={`fw-bold ${
@@ -188,33 +222,49 @@ export default function Calendariopage({ actividades = [] }) {
                             }`}
                             style={
                               esHoy
-                                ? { width: "24px", height: "24px", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "11px" }
+                                ? {
+                                    width: "24px",
+                                    height: "24px",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "11px",
+                                  }
                                 : { fontSize: "13px" }
                             }
                           >
                             {dia}
                           </span>
+
                           {feriado && (
-                            <span className="badge bg-danger text-white" style={{ fontSize: "8px", padding: "2px 4px" }}>
-                              🇨🇱
+                            <span
+                              className="badge bg-danger text-white"
+                              style={{ fontSize: "8px", padding: "2px 4px" }}
+                              title="Feriado en Chile"
+                            >
+                              <i className="bi bi-flag-fill"></i>
                             </span>
                           )}
                         </div>
 
-                        {/* Contenedor escroleable si hay muchas tareas/feriado */}
-                        <div className="w-100 overflow-auto pe-1" style={{ maxHeight: "85px" }}>
+                        <div
+                          className="w-100 overflow-auto pe-1"
+                          style={{ maxHeight: "85px" }}
+                        >
                           {feriado && (
                             <div
                               className="mb-1 text-danger fw-bold lh-sm text-truncate"
                               style={{ fontSize: "10px" }}
                               title={feriado.localName}
                             >
-                              🎉 {feriado.localName}
+                              <i className="bi bi-stars me-1"></i>
+                              {feriado.localName}
                             </div>
                           )}
 
                           {listaActividadesDia.map((act) => {
                             const completada = esCompletada(act);
+
                             return (
                               <div
                                 key={act.id || act.titulo}
@@ -223,10 +273,23 @@ export default function Calendariopage({ actividades = [] }) {
                                     ? "bg-success bg-opacity-25 text-success text-decoration-line-through border border-success"
                                     : "bg-info text-dark"
                                 }`}
-                                style={{ fontSize: "9px", fontWeight: "500", display: "block" }}
-                                title={`${act.titulo || act.nombre} ${completada ? "(Completada)" : ""}`}
+                                style={{
+                                  fontSize: "9px",
+                                  fontWeight: "500",
+                                  display: "block",
+                                }}
+                                title={`${act.titulo || act.nombre} ${
+                                  completada ? "(Completada)" : ""
+                                }`}
                               >
-                                {completada ? "✅" : "📌"} {act.titulo || act.nombre}
+                                <i
+                                  className={`bi ${
+                                    completada
+                                      ? "bi-check-circle-fill"
+                                      : "bi-pin-fill"
+                                  } me-1`}
+                                ></i>
+                                {act.titulo || act.nombre}
                               </div>
                             );
                           })}
@@ -245,27 +308,55 @@ export default function Calendariopage({ actividades = [] }) {
           <div className="card shadow-sm border-0 mb-4">
             <div className="card-header bg-white py-3">
               <h5 className="fw-bold m-0 text-dark">
-                📌 Actividades de {nombresMeses[mes]}
+                <i className="bi bi-pin-angle me-2 text-primary"></i>
+                Actividades de {nombresMeses[mes]}
               </h5>
             </div>
+
             <div className="card-body p-3">
               {actividadesDelMes.length === 0 ? (
-                <p className="text-muted text-center my-3">No hay actividades programadas este mes.</p>
+                <p className="text-muted text-center my-3">
+                  No hay actividades programadas este mes.
+                </p>
               ) : (
                 <ul className="list-group list-group-flush">
                   {actividadesDelMes.map((act) => {
                     const completada = esCompletada(act);
                     const fechaClave = obtenerFechaActividad(act);
+
                     return (
-                      <li key={act.id || act.titulo} className="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                      <li
+                        key={act.id || act.titulo}
+                        className="list-group-item px-0 py-2 d-flex justify-content-between align-items-center"
+                      >
                         <div>
-                          <strong className={`d-block ${completada ? "text-decoration-line-through text-muted" : "text-dark"}`}>
-                            {completada ? "✅ " : ""}{act.titulo || act.nombre}
+                          <strong
+                            className={`d-block ${
+                              completada
+                                ? "text-decoration-line-through text-muted"
+                                : "text-dark"
+                            }`}
+                          >
+                            {completada && (
+                              <i className="bi bi-check-circle-fill text-success me-2"></i>
+                            )}
+                            {act.titulo || act.nombre}
                           </strong>
-                          <small className="text-muted">📅 {fechaClave}</small>
+
+                          <small className="text-muted">
+                            <i className="bi bi-calendar-event me-1"></i>
+                            {fechaClave}
+                          </small>
                         </div>
-                        <span className={`badge ${completada ? "bg-success" : "bg-primary"}`}>
-                          {completada ? "Completada" : act.estado || "Pendiente"}
+
+                        <span
+                          className={`badge ${
+                            completada ? "bg-success" : "bg-primary"
+                          }`}
+                        >
+                          {completada
+                            ? "Completada"
+                            : act.estado || "Pendiente"}
                         </span>
                       </li>
                     );
@@ -278,9 +369,11 @@ export default function Calendariopage({ actividades = [] }) {
           <div className="card shadow-sm border-0">
             <div className="card-header bg-white py-3">
               <h5 className="fw-bold m-0 text-dark">
-                🇨🇱 Feriados de {nombresMeses[mes]}
+                <i className="bi bi-flag-fill text-danger me-2"></i>
+                Feriados de {nombresMeses[mes]}
               </h5>
             </div>
+
             <div className="card-body p-3">
               {feriadosDelMes.length === 0 ? (
                 <div className="text-center text-muted py-3">
@@ -290,8 +383,12 @@ export default function Calendariopage({ actividades = [] }) {
                 <ul className="list-group list-group-flush">
                   {feriadosDelMes.map((f) => {
                     const diaFeriado = parseInt(f.date.split("-")[2], 10);
+
                     return (
-                      <li key={f.date} className="list-group-item d-flex align-items-center gap-3 px-0 py-2">
+                      <li
+                        key={f.date}
+                        className="list-group-item d-flex align-items-center gap-3 px-0 py-2"
+                      >
                         <div
                           className="bg-danger text-white rounded text-center p-2 d-flex flex-column justify-content-center"
                           style={{ width: "45px", height: "45px" }}
@@ -299,11 +396,24 @@ export default function Calendariopage({ actividades = [] }) {
                           <small style={{ fontSize: "9px", lineHeight: "1" }}>
                             {nombresMeses[mes].slice(0, 3).toUpperCase()}
                           </small>
-                          <strong className="fs-6 lh-1">{diaFeriado}</strong>
+
+                          <strong className="fs-6 lh-1">
+                            {diaFeriado}
+                          </strong>
                         </div>
+
                         <div>
-                          <h6 className="fw-bold mb-0 text-dark" style={{ fontSize: "14px" }}>{f.localName}</h6>
-                          <span className="badge bg-secondary" style={{ fontSize: "10px" }}>
+                          <h6
+                            className="fw-bold mb-0 text-dark"
+                            style={{ fontSize: "14px" }}
+                          >
+                            {f.localName}
+                          </h6>
+
+                          <span
+                            className="badge bg-secondary"
+                            style={{ fontSize: "10px" }}
+                          >
                             {f.tipo}
                           </span>
                         </div>

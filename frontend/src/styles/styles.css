@@ -1,6 +1,8 @@
 .main-content {
-  flex: 1;
+  margin-left: 260px;
+  width: calc(100% - 260px);
   min-width: 0;
+  flex: 1;
 }
 
 .filtro-boton {
@@ -39,20 +41,31 @@
 }
 
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 260px;
-  min-width: 260px;
-  max-width: 260px;
+  height: 100vh;
   min-height: 100vh;
+  overflow-y: auto;
   flex-shrink: 0;
   box-sizing: border-box;
+  z-index: 1000;
 }
 
 @media (max-width: 767px) {
   .sidebar {
+    position: relative;
     width: 100%;
     min-width: 100%;
     max-width: 100%;
+    height: auto;
     min-height: auto;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
   }
 
   .sidebar h3 {

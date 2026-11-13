@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { CLASE_PRIORIDAD, ETIQUETA_ESTADO } from "../constants/tareas";
 import AsignaturasEstadisticas from "../components/AsignaturasEstadisticas";
@@ -9,7 +10,6 @@ export default function ListaActividadesPage({
   filtroAsignaturaInicial,
   navegar,
 }) {
-  // Inicialización directa sin necesidad de useEffect
   const [filtro, setFiltro] = useState(() =>
     filtroAsignaturaInicial ? "asignaturas" : "todas",
   );
@@ -135,10 +135,10 @@ export default function ListaActividadesPage({
   const actividadesParaMostrar =
     filtro === "completadas"
       ? [...actividadesFiltradas].sort(
-        (a, b) =>
-          (Date.parse(fechasCompletadas[b.id] || "") || 0) -
-          (Date.parse(fechasCompletadas[a.id] || "") || 0),
-      )
+          (a, b) =>
+            (Date.parse(fechasCompletadas[b.id] || "") || 0) -
+            (Date.parse(fechasCompletadas[a.id] || "") || 0),
+        )
       : actividadesFiltradas;
 
   return (
@@ -155,60 +155,69 @@ export default function ListaActividadesPage({
         <input
           type="text"
           className="form-control"
-          placeholder="🔍 Buscar actividades..."
+          placeholder="Buscar actividades..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
       </div>
 
       <div className="col-12 mt-3">
-        <AsignaturasEstadisticas asignaturas={asignaturas} actividades={actividades} />
+        <AsignaturasEstadisticas
+          asignaturas={asignaturas}
+          actividades={actividades}
+        />
       </div>
 
       <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "todas" ? "btn-primary" : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "todas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("todas")}
         >
           Todas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "urgente" ? "btn-primary" : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "urgente" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("urgente")}
         >
           Urgente
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "semana" ? "btn-primary" : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "semana" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("semana")}
         >
           Próxima
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "normal" ? "btn-primary" : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "normal" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("normal")}
         >
           Normal
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "atrasadas" ? "btn-primary" : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "atrasadas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("atrasadas")}
         >
           Atrasadas
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "asignaturas" ? "btn-primary" : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "asignaturas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => {
             setFiltro("asignaturas");
             setAsignaturaSeleccionada(null);
@@ -218,8 +227,9 @@ export default function ListaActividadesPage({
         </button>
 
         <button
-          className={`btn btn-sm rounded-pill ${filtro === "completadas" ? "btn-primary" : "filtro-boton"
-            }`}
+          className={`btn btn-sm rounded-pill ${
+            filtro === "completadas" ? "btn-primary" : "filtro-boton"
+          }`}
           onClick={() => setFiltro("completadas")}
         >
           Completadas
@@ -256,13 +266,16 @@ export default function ListaActividadesPage({
                         setAsignaturaSeleccionada(asignatura.id)
                       }
                     >
-                      📚 {asignatura.nombre}
+                      <i className="bi bi-journal-bookmark me-2"></i>
+                      {asignatura.nombre}
                     </button>
                   ))}
                 </div>
               </div>
             ) : cargandoCompletadas && filtro === "completadas" ? (
-              <p className="text-muted mt-4">Cargando actividades completadas...</p>
+              <p className="text-muted mt-4">
+                Cargando actividades completadas...
+              </p>
             ) : errorCompletadas && filtro === "completadas" ? (
               <p className="text-danger mt-4">{errorCompletadas}</p>
             ) : actividadesParaMostrar.length === 0 ? (
@@ -278,8 +291,7 @@ export default function ListaActividadesPage({
                 const fechaLimite = new Date(actividad.fechaLimite);
 
                 const dias =
-                  (fechaLimite - ahora) /
-                  (1000 * 60 * 60 * 24);
+                  (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
 
                 let textoPrioridad;
                 let clasePrioridad;
@@ -306,9 +318,7 @@ export default function ListaActividadesPage({
                       width: "85%",
                       cursor: "pointer",
                     }}
-                    onClick={() =>
-                      navegar("detalle", actividad.id)
-                    }
+                    onClick={() => navegar("detalle", actividad.id)}
                   >
                     <div className="card-body">
                       <div className="d-flex justify-content-between align-items-start">
@@ -316,30 +326,36 @@ export default function ListaActividadesPage({
                           <p
                             className="mb-2 fw-semibold"
                             style={{
-                              color:
-                                asignatura?.color || "#2563eb",
+                              color: asignatura?.color || "#2563eb",
                             }}
                           >
-                            {asignatura?.nombre ||
-                              "Sin asignatura"}
+                            {asignatura?.nombre || "Sin asignatura"}
                           </p>
 
                           <h5 className="card-title fw-bold mb-2">
-                            {actividad.tipo === "evaluacion" ? "📝 " : ""}
+                            {actividad.tipo === "evaluacion" && (
+                              <i className="bi bi-file-earmark-text me-2"></i>
+                            )}
                             {actividad.titulo}
                           </h5>
                         </div>
 
                         <div className="d-flex flex-column align-items-end gap-1">
-                          <span className={`badge rounded-pill ${clasePrioridad}`}>
+                          <span
+                            className={`badge rounded-pill ${clasePrioridad}`}
+                          >
                             {textoPrioridad}
                           </span>
+
                           <span
-                            className={`badge rounded-pill ${CLASE_PRIORIDAD[actividad.prioridad] ?? "bg-secondary"
-                              }`}
+                            className={`badge rounded-pill ${
+                              CLASE_PRIORIDAD[actividad.prioridad] ??
+                              "bg-secondary"
+                            }`}
                           >
                             Prioridad {actividad.prioridad ?? "media"}
                           </span>
+
                           <span className="badge rounded-pill bg-light text-dark border">
                             {ETIQUETA_ESTADO[actividad.estado] ?? "Pendiente"}
                           </span>
@@ -347,12 +363,12 @@ export default function ListaActividadesPage({
                       </div>
 
                       <p className="card-text text-muted mb-3">
-                        {actividad.descripcion ||
-                          "Sin descripción"}
+                        {actividad.descripcion || "Sin descripción"}
                       </p>
 
                       <p className="text-muted mb-0">
-                        📅 Fecha límite:{" "}
+                        <i className="bi bi-calendar-event me-2"></i>
+                        Fecha límite:{" "}
                         {fechaLimite.toLocaleString("es-CL", {
                           day: "2-digit",
                           month: "2-digit",
