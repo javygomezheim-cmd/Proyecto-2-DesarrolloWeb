@@ -72,12 +72,13 @@ export class TareasService {
     return tareaGuardada;
   }
 
-  async buscarTodas(usuarioId: string): Promise<Tarea[]> {
-    return this.tareasRepository.find({
-      where: { usuario: { id: usuarioId } },
-      relations: { asignatura: true },
-    });
-  }
+async buscarTodas(usuarioId: string): Promise<Tarea[]> {
+  return this.tareasRepository.find({
+    where: { usuario: { id: usuarioId } },
+    relations: { asignatura: true },
+    order: { fechaLimite: 'ASC' },
+  });
+}
 
   async buscarUna(id: string, usuarioId: string): Promise<Tarea> {
     const tarea = await this.tareasRepository.findOne({

@@ -132,14 +132,18 @@ export default function ListaActividadesPage({
     return true;
   });
 
-  const actividadesParaMostrar =
-    filtro === "completadas"
-      ? [...actividadesFiltradas].sort(
-          (a, b) =>
-            (Date.parse(fechasCompletadas[b.id] || "") || 0) -
-            (Date.parse(fechasCompletadas[a.id] || "") || 0),
-        )
-      : actividadesFiltradas;
+const actividadesParaMostrar =
+  filtro === "completadas"
+    ? [...actividadesFiltradas].sort(
+        (a, b) =>
+          (Date.parse(fechasCompletadas[b.id] || "") || 0) -
+          (Date.parse(fechasCompletadas[a.id] || "") || 0),
+      )
+    : [...actividadesFiltradas].sort(
+        (a, b) =>
+          new Date(a.fechaLimite) - new Date(b.fechaLimite) ||
+          (a.titulo ?? "").localeCompare(b.titulo ?? ""),
+      );
 
   return (
     <div className="row align-items-start mb-4 px-3 pt-3 w-100 m-0">
