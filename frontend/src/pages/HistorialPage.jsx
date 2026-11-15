@@ -1,67 +1,101 @@
-export default function HistorialPage({
-  actividades,
-  asignaturas,
-  navegar,
-}) {
-  const actividadesCompletadas = actividades.filter(
-    (actividad) => actividad.completada
-  );
+
+import { useState, useEffect } from "react";
+import { obtenerHistorialApi } from "../services/api";
+
+const ETIQUETA_ENTIDAD = {
+  asignatura: "Asignatura",
+  tarea: "Tarea",
+  subtarea: "Subtarea",
+  evaluacion: "Evaluación",
+};
+
+export default function HistorialPage() {
+  const [eventos, setEventos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function cargarHistorial() {
+      try {
+        setCargando(true);
+        setError(null);
+        setEventos(await obtenerHistorialApi());
+      } catch (err) {
+        setError(err.message || "No se pudo cargar el historial.");
+      } finally {
+        setCargando(false);
+      }
+    }
+
+    cargarHistorial();
+  }, []);
 
   return (
     <div className="container py-4">
-      <h1 className="fw-bold mb-1">Historial</h1>
+      <h1 className="fw-bold mb-1">
+        <i className="bi bi-clock-history text-primary me-2"></i>
+        Historial
+      </h1>
 
       <p className="text-muted mb-4">
-        Actividades que has completado
+        Registro de acciones y cambios en tu cuenta
       </p>
 
-      {actividadesCompletadas.length === 0 ? (
+      {cargando ? (
         <div className="text-center py-5">
-          <h5>No hay actividades completadas.</h5>
-
+          <div className="spinner-border text-primary" role="status"></div>
+        </div>
+      ) : error ? (
+        <div className="alert alert-danger">
+          <i className="bi bi-exclamation-circle me-2"></i>
+          {error}
+        </div>
+      ) : eventos.length === 0 ? (
+        <div className="text-center py-5">
+          <i className="bi bi-clock-history text-muted fs-1 mb-3"></i>
+          <h5>No hay eventos registrados en el historial.</h5>
           <p className="text-muted">
-            Las actividades que marques como completadas aparecerán aquí.
+            Las acciones que realices aparecerán aquí.
           </p>
         </div>
       ) : (
         <div className="d-flex flex-column gap-3">
-          {actividadesCompletadas.map((actividad) => {
-            const asignatura = asignaturas.find(
-              (a) => a.id === actividad.asignaturaId
+          {eventos.map((evento) => {
+            const fechaFormateada = new Date(evento.fecha).toLocaleString(
+              "es-CL",
+              {
+                dateStyle: "medium",
+                timeStyle: "short",
+              },
             );
 
             return (
               <div
-                key={actividad.id}
-                className="card shadow-sm"
-                style={{ cursor: "pointer" }}
-                onClick={() => navegar("detalle", actividad.id)}
+                key={evento._id || `${evento.entidadId}-${evento.fecha}`}
+                className="card shadow-sm border-0"
               >
                 <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start gap-3">
-                    <div>
-                      <p
-                        className="mb-1 fw-semibold"
-                        style={{
-                          color: asignatura?.color || "#2563eb",
-                        }}
-                      >
-                        {asignatura?.nombre || "Sin asignatura"}
-                      </p>
+                  <span
+                    className="badge bg-secondary text-uppercase mb-1"
+                    style={{ fontSize: "10px" }}
+                  >
+                    {ETIQUETA_ENTIDAD[evento.entidad] ?? evento.entidad} - {evento.accion}
+                  </span>
 
-                      <h5 className="fw-bold mb-2">
-                        {actividad.titulo}
-                      </h5>
-                    </div>
+                  <h5 className="fw-bold mb-1 text-dark">
+                    {evento.titulo}
+                  </h5>
 
-                    <span className="badge badge-completada">
-                      Completada
-                    </span>
-                  </div>
+                  {evento.detalle && (
+                    <p className="mb-1 text-muted small">
+                      {evento.detalle}
+                    </p>
+                  )}
 
-                  <p className="text-muted mb-0">
-                    {actividad.descripcion || "Sin descripción"}
-                  </p>
+                  <small className="text-muted">
+                    <i className="bi bi-calendar-event me-1"></i>
+                    {fechaFormateada}
+                  </small>
                 </div>
               </div>
             );

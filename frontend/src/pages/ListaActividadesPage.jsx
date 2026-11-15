@@ -1,4 +1,8 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+import { CLASE_PRIORIDAD, ETIQUETA_ESTADO } from "../constants/tareas";
+import AsignaturasEstadisticas from "../components/AsignaturasEstadisticas";
+import { obtenerHistorialApi } from "../services/api";
 
 export default function ListaActividadesPage({
   actividades,
@@ -6,7 +10,6 @@ export default function ListaActividadesPage({
   filtroAsignaturaInicial,
   navegar,
 }) {
-  // Inicialización directa sin necesidad de useEffect
   const [filtro, setFiltro] = useState(() =>
     filtroAsignaturaInicial ? "asignaturas" : "todas",
   );
@@ -16,6 +19,58 @@ export default function ListaActividadesPage({
   );
 
   const [busqueda, setBusqueda] = useState("");
+  const [fechasCompletadas, setFechasCompletadas] = useState({});
+  const [cargandoCompletadas, setCargandoCompletadas] = useState(false);
+  const [errorCompletadas, setErrorCompletadas] = useState("");
+
+  useEffect(() => {
+    if (filtro !== "completadas") return;
+
+    let cancelado = false;
+
+    async function cargarFechasCompletadas() {
+      try {
+        setCargandoCompletadas(true);
+        setErrorCompletadas("");
+
+        const eventos = await obtenerHistorialApi("", 1000);
+        const fechas = {};
+
+        eventos.forEach((evento) => {
+          if (evento.accion !== "completada" || !evento.entidadId) return;
+
+          const fechaAnterior = fechas[evento.entidadId];
+
+          if (
+            !fechaAnterior ||
+            new Date(evento.fecha) > new Date(fechaAnterior)
+          ) {
+            fechas[evento.entidadId] = evento.fecha;
+          }
+        });
+
+        if (!cancelado) {
+          setFechasCompletadas(fechas);
+        }
+      } catch (error) {
+        if (!cancelado) {
+          setErrorCompletadas(
+            error.message || "No se pudieron cargar las fechas de finalización.",
+          );
+        }
+      } finally {
+        if (!cancelado) {
+          setCargandoCompletadas(false);
+        }
+      }
+    }
+
+    cargarFechasCompletadas();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [filtro]);
 
   function quitarTildes(texto) {
     return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -24,8 +79,14 @@ export default function ListaActividadesPage({
   const ahora = new Date();
 
   const actividadesFiltradas = actividades.filter((actividad) => {
-    // Las actividades completadas no aparecen en la lista principal
-    if (actividad.completada) {
+    const estaCompletada =
+      actividad.completada || actividad.estado === "completada";
+
+    if (filtro === "completadas") {
+      return estaCompletada;
+    }
+
+    if (estaCompletada) {
       return false;
     }
 
@@ -34,10 +95,8 @@ export default function ListaActividadesPage({
 
     const textoBusqueda = quitarTildes(busqueda.toLowerCase());
 
-    const titulo = quitarTildes(actividad.titulo.toLowerCase());
-    const descripcion = quitarTildes(
-      actividad.descripcion.toLowerCase(),
-    );
+    const titulo = quitarTildes((actividad.titulo ?? "").toLowerCase());
+    const descripcion = quitarTildes((actividad.descripcion ?? "").toLowerCase());
 
     if (
       textoBusqueda &&
@@ -73,6 +132,19 @@ export default function ListaActividadesPage({
     return true;
   });
 
+const actividadesParaMostrar =
+  filtro === "completadas"
+    ? [...actividadesFiltradas].sort(
+        (a, b) =>
+          (Date.parse(fechasCompletadas[b.id] || "") || 0) -
+          (Date.parse(fechasCompletadas[a.id] || "") || 0),
+      )
+    : [...actividadesFiltradas].sort(
+        (a, b) =>
+          new Date(a.fechaLimite) - new Date(b.fechaLimite) ||
+          (a.titulo ?? "").localeCompare(b.titulo ?? ""),
+      );
+
   return (
     <div className="row align-items-start mb-4 px-3 pt-3 w-100 m-0">
       <div className="col-12 col-md-7">
@@ -87,9 +159,16 @@ export default function ListaActividadesPage({
         <input
           type="text"
           className="form-control"
-          placeholder="🔍 Buscar actividades..."
+          placeholder="Buscar actividades..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
+        />
+      </div>
+
+      <div className="col-12 mt-3">
+        <AsignaturasEstadisticas
+          asignaturas={asignaturas}
+          actividades={actividades}
         />
       </div>
 
@@ -150,6 +229,15 @@ export default function ListaActividadesPage({
         >
           Asignaturas
         </button>
+
+        <button
+          className={`btn btn-sm rounded-pill ${
+            filtro === "completadas" ? "btn-primary" : "filtro-boton"
+          }`}
+          onClick={() => setFiltro("completadas")}
+        >
+          Completadas
+        </button>
       </div>
 
       <div className="actividades-contenido d-flex gap-4 align-items-start w-100">
@@ -182,17 +270,24 @@ export default function ListaActividadesPage({
                         setAsignaturaSeleccionada(asignatura.id)
                       }
                     >
-                      📚 {asignatura.nombre}
+                      <i className="bi bi-journal-bookmark me-2"></i>
+                      {asignatura.nombre}
                     </button>
                   ))}
                 </div>
               </div>
-            ) : actividadesFiltradas.length === 0 ? (
+            ) : cargandoCompletadas && filtro === "completadas" ? (
+              <p className="text-muted mt-4">
+                Cargando actividades completadas...
+              </p>
+            ) : errorCompletadas && filtro === "completadas" ? (
+              <p className="text-danger mt-4">{errorCompletadas}</p>
+            ) : actividadesParaMostrar.length === 0 ? (
               <p className="text-muted mt-4">
                 No hay actividades para este filtro
               </p>
             ) : (
-              actividadesFiltradas.map((actividad) => {
+              actividadesParaMostrar.map((actividad) => {
                 const asignatura = asignaturas.find(
                   (a) => a.id === actividad.asignaturaId,
                 );
@@ -200,8 +295,7 @@ export default function ListaActividadesPage({
                 const fechaLimite = new Date(actividad.fechaLimite);
 
                 const dias =
-                  (fechaLimite - ahora) /
-                  (1000 * 60 * 60 * 24);
+                  (fechaLimite - ahora) / (1000 * 60 * 60 * 24);
 
                 let textoPrioridad;
                 let clasePrioridad;
@@ -228,9 +322,7 @@ export default function ListaActividadesPage({
                       width: "85%",
                       cursor: "pointer",
                     }}
-                    onClick={() =>
-                      navegar("detalle", actividad.id)
-                    }
+                    onClick={() => navegar("detalle", actividad.id)}
                   >
                     <div className="card-body">
                       <div className="d-flex justify-content-between align-items-start">
@@ -238,33 +330,49 @@ export default function ListaActividadesPage({
                           <p
                             className="mb-2 fw-semibold"
                             style={{
-                              color:
-                                asignatura?.color || "#2563eb",
+                              color: asignatura?.color || "#2563eb",
                             }}
                           >
-                            {asignatura?.nombre ||
-                              "Sin asignatura"}
+                            {asignatura?.nombre || "Sin asignatura"}
                           </p>
 
                           <h5 className="card-title fw-bold mb-2">
+                            {actividad.tipo === "evaluacion" && (
+                              <i className="bi bi-file-earmark-text me-2"></i>
+                            )}
                             {actividad.titulo}
                           </h5>
                         </div>
 
-                        <span
-                          className={`badge rounded-pill ${clasePrioridad}`}
-                        >
-                          {textoPrioridad}
-                        </span>
+                        <div className="d-flex flex-column align-items-end gap-1">
+                          <span
+                            className={`badge rounded-pill ${clasePrioridad}`}
+                          >
+                            {textoPrioridad}
+                          </span>
+
+                          <span
+                            className={`badge rounded-pill ${
+                              CLASE_PRIORIDAD[actividad.prioridad] ??
+                              "bg-secondary"
+                            }`}
+                          >
+                            Prioridad {actividad.prioridad ?? "media"}
+                          </span>
+
+                          <span className="badge rounded-pill bg-light text-dark border">
+                            {ETIQUETA_ESTADO[actividad.estado] ?? "Pendiente"}
+                          </span>
+                        </div>
                       </div>
 
                       <p className="card-text text-muted mb-3">
-                        {actividad.descripcion ||
-                          "Sin descripción"}
+                        {actividad.descripcion || "Sin descripción"}
                       </p>
 
                       <p className="text-muted mb-0">
-                        📅 Fecha límite:{" "}
+                        <i className="bi bi-calendar-event me-2"></i>
+                        Fecha límite:{" "}
                         {fechaLimite.toLocaleString("es-CL", {
                           day: "2-digit",
                           month: "2-digit",
@@ -287,7 +395,7 @@ export default function ListaActividadesPage({
               <h5 className="fw-bold mb-1">Actividades</h5>
 
               <h2 className="fw-bold mb-1">
-                {actividadesFiltradas.length}
+                {actividadesParaMostrar.length}
               </h2>
 
               <p className="mb-0 text-muted">

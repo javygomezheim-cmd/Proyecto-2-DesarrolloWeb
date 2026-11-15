@@ -8,6 +8,7 @@ export default function AsignaturasPage({
   actividades,
   eliminarAsignaturas,
   abrirModalAsignatura,
+  editarAsignatura,
   navegar,
 }) {
   const [modoEliminar, setModoEliminar] = useState(false);
@@ -112,6 +113,7 @@ export default function AsignaturasPage({
                 modoEliminar={modoEliminar}
                 seleccionada={seleccionadas.includes(asignatura.id)}
                 seleccionar={() => alternarSeleccion(asignatura.id)}
+                editarAsignatura={() => editarAsignatura(asignatura)}
                 navegar={navegar}
               />
             </div>

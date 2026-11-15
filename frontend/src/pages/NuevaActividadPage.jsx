@@ -1,5 +1,15 @@
 import FormularioActividad from "../components/FormularioActividad";
 
+// Convierte la fecha ISO al formato que necesita input datetime-local
+const aInputLocal = (iso) => {
+  if (!iso) return "";
+
+  const d = new Date(iso);
+  const p = (n) => String(n).padStart(2, "0");
+
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+
 export default function NuevaActividadPage({
   actividadId,
   actividades,
@@ -17,16 +27,40 @@ export default function NuevaActividadPage({
     fechaLimite: "",
     descripcion: "",
     completada: false,
+    tipo: "tarea",
+    prioridad: "media",
+    estado: "pendiente",
     subtareas: [],
   };
 
-  function guardar(datos) {
+  const inicial = actividad
+    ? {
+        titulo: actividad.titulo,
+        descripcion: actividad.descripcion ?? "",
+        fechaLimite: aInputLocal(actividad.fechaLimite),
+        completada: actividad.completada,
+        tipo: actividad.tipo ?? "tarea",
+        prioridad: actividad.prioridad ?? "media",
+        estado: actividad.estado ?? "pendiente",
+        subtareas: actividad.subtareas ?? [],
+        asignaturaId: actividad.asignatura?.id ?? actividad.asignaturaId ?? "",
+      }
+    : actividadVacia;
+
+  async function guardar(datos) {
+    const payload = {
+      ...datos,
+      fechaLimite: datos.fechaLimite
+        ? new Date(datos.fechaLimite).toISOString()
+        : "",
+    };
+
     if (editando) {
-      actualizarActividad(actividad.id, datos);
-      navegar("detalle", actividad.id);
+      const ok = await actualizarActividad(actividad.id, payload);
+      if (ok) navegar("detalle", actividad.id);
     } else {
-      agregarActividad(datos);
-      navegar("lista");
+      const ok = await agregarActividad(payload);
+      if (ok) navegar("lista");
     }
   }
 
@@ -43,7 +77,7 @@ export default function NuevaActividadPage({
 
       <FormularioActividad
         key={actividadId}
-        actividadInicial={actividad ?? actividadVacia}
+        actividadInicial={inicial}
         asignaturas={asignaturas}
         editando={editando}
         onGuardar={guardar}
