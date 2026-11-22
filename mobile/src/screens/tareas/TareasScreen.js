@@ -1,36 +1,69 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
+import { COLORES, ESPACIO } from "../../constants/tema";
 import { useAsync } from "../../hooks/useAsync";
 import { obtenerTareas } from "../../services/tareasService";
 import LoadingView from "../../components/common/LoadingView";
 import ErrorView from "../../components/common/ErrorView";
 import EmptyState from "../../components/common/EmptyState";
+import TareaCard from "../../components/tareas/TareaCard";
+import FiltrosTareas from "../../components/tareas/FiltrosTareas";
 
 export default function TareasScreen({ navigation }) {
-  const { data, loading, error, recargar } = useAsync(() => obtenerTareas());
+  const [tipo, setTipo] = useState("todos");
+  const [estado, setEstado] = useState("todos");
+  const { data, loading, error, refrescando, recargar, refrescar } = useAsync(() =>
+    obtenerTareas()
+  );
 
-  if (loading) return <LoadingView />;
+  const filtradas = useMemo(
+    () =>
+      (data ?? []).filter(
+        (t) =>
+          (tipo === "todos" || t.tipo === tipo) &&
+          (estado === "todos" || t.estado === estado)
+      ),
+    [data, tipo, estado]
+  );
+
+  if (loading) return <LoadingView mensaje="Cargando tareas..." />;
   if (error) return <ErrorView mensaje={error} onReintentar={recargar} />;
-  if (!data || data.length === 0) {
-    return <EmptyState titulo="No tienes tareas" descripcion="Crea una desde la web." />;
-  }
+
+  const hayDatos = (data ?? []).length > 0;
 
   return (
-    <View style={styles.centro}>
-      <Text style={styles.texto}>Tareas (pendiente: integrante 3)</Text>
-      <Text>La API devolvió {data.length} tareas/evaluaciones.</Text>
-      <Text
-        style={styles.link}
-        onPress={() => navigation.navigate("TareaDetalle", { id: data[0].id })}
-      >
-        Abrir detalle de la primera
-      </Text>
+    <View style={styles.pantalla}>
+      <FiltrosTareas tipo={tipo} onTipo={setTipo} estado={estado} onEstado={setEstado} />
+      <FlatList
+        data={filtradas}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.lista}
+        refreshControl={<RefreshControl refreshing={refrescando} onRefresh={refrescar} />}
+        ListEmptyComponent={
+          hayDatos ? (
+            <EmptyState
+              titulo="Sin resultados"
+              descripcion="Ninguna actividad coincide con los filtros elegidos."
+            />
+          ) : (
+            <EmptyState
+              titulo="No tienes tareas ni evaluaciones"
+              descripcion="Créalas desde la aplicación web y aparecerán aquí."
+            />
+          )
+        }
+        renderItem={({ item }) => (
+          <TareaCard
+            tarea={item}
+            onPress={() => navigation.navigate("TareaDetalle", { id: item.id })}
+          />
+        )}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  centro: { flex: 1, alignItems: "center", justifyContent: "center" },
-  texto: { fontSize: 16, fontWeight: "600", marginBottom: 8 },
-  link: { marginTop: 12, color: "#2563eb", fontWeight: "600" },
+  pantalla: { flex: 1, backgroundColor: COLORES.fondo },
+  lista: { padding: ESPACIO.lg, flexGrow: 1 },
 });
