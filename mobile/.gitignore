@@ -1,0 +1,27 @@
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Variables de entorno (no versionar)
+.env
+.env.*
+!.env.example
+
+# Nativo / builds
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Metro
+.metro-health-check*
+
+# Sistema
+.DS_Store
+npm-debug.*
+yarn-debug.*
+yarn-error.*
