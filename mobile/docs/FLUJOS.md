@@ -1,6 +1,6 @@
 # Flujos implementados y capturas
 
-Las capturas están en `docs/capturas/`. (Completar con las imágenes reales.)
+Las capturas están en `docs/capturas/`.
 
 | Flujo | Descripción | Captura |
 |---|---|---|
@@ -21,3 +21,13 @@ Las capturas están en `docs/capturas/`. (Completar con las imágenes reales.)
 Un cambio de estado o de subtareas hecho en el móvil se guarda con `PUT /tareas/:id`
 en PostgreSQL, el backend registra el evento en el historial (MongoDB) y el cambio se ve
 al recargar la aplicación web.
+
+## Capturas
+
+| Inicio de sesión | Inicio | Agenda |
+|---|---|---|
+| ![Inicio de sesión](capturas/01-login.png) | ![Inicio](capturas/02-inicio.png) | ![Agenda](capturas/03-agenda.png) |
+
+| Tareas | Detalle de tarea | Asignaturas |
+|---|---|---|
+| ![Tareas](capturas/04-tareas.png) | ![Detalle de tarea](capturas/05-detalle-tarea.png) | ![Asignaturas](capturas/06-asignaturas.png) |
