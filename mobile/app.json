@@ -21,7 +21,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+<<<<<<< Updated upstream
       "expo-secure-store"
+=======
+      "expo-secure-store",
+      "expo-font"
+>>>>>>> Stashed changes
     ]
   }
 }
