@@ -325,7 +325,3 @@ El uso de inteligencia artificial fue complementario al trabajo del equipo. Las 
 * Ramas principales: `main` y `develop`; ramas `feature/*` para cada funcionalidad.
 * Integración mediante Pull Requests hacia `develop`.
 * La evolución desde el Taller 2 hasta los Hitos 3 y 4 queda registrada en el historial de commits del repositorio.
-
-* Ramas principales: `main` y `develop`; ramas `feature/*` para cada funcionalidad.
-* Integración mediante Pull Requests hacia `develop`.
-* La evolución desde el Taller 2 queda en el historial de commits del repositorio.
