@@ -321,13 +321,6 @@ El detalle de herramientas de IA, elementos asistidos y validación humana reali
 El uso de inteligencia artificial fue complementario al trabajo del equipo. Las sugerencias y fragmentos de código generados fueron revisados, adaptados y probados antes de incorporarse al proyecto. Todos los integrantes son responsables de comprender las funcionalidades implementadas y poder explicar sus decisiones técnicas durante la defensa.
 
 ## 16. Trabajo colaborativo y Git
-<<<<<<< Updated upstream
-
-* Ramas principales: `main` y `develop`; ramas `feature/*` para cada funcionalidad.
-* Integración mediante Pull Requests hacia `develop`.
-* La evolución desde el Taller 2 hasta los Hitos 3 y 4 queda registrada en el historial de commits del repositorio.
-=======
->>>>>>> Stashed changes
 
 * Ramas principales: `main` y `develop`; ramas `feature/*` para cada funcionalidad.
 * Integración mediante Pull Requests hacia `develop`.
