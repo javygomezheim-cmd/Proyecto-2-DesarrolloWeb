@@ -10,7 +10,7 @@ Las capturas están en `docs/capturas/`.
 | Tareas | Lista con filtros por tipo y estado, prioridad y avance | `04-tareas.png` |
 | Detalle de tarea | Cambio de estado (con confirmación al completar) y marcado de subtareas con barra de avance | `05-detalle-tarea.png` |
 | Asignaturas | Lista con cantidad de actividades por hacer y detalle con sus tareas y evaluaciones | `06-asignaturas.png` |
-| Persistencia compartida | Cambio de estado realizado desde el móvil y reflejado en la aplicación web | `07,1-web-antes.png`, `07-movil-durante.png`, `07-web-despues.png` |
+| Persistencia compartida | Cambio de estado realizado desde el móvil y reflejado en la aplicación web | `07-web-antes.png`, `07-movil-durante.png`, `07-web-despues.png` |
 | Error de autenticación | Mensaje mostrado al intentar iniciar sesión con credenciales incorrectas | `08-error-login.png` |
 
 ## Estados de interfaz
@@ -43,7 +43,7 @@ Las siguientes capturas evidencian la consistencia de los datos entre ambos clie
 
 | Estado anterior en web | Cambio desde móvil |
 |---|---|
-| ![Web antes](capturas/07,1-web-antes.png) | ![Móvil durante](capturas/07-movil-durante.png) |
+| ![Web antes](capturas/07-web-antes.png) | ![Móvil durante](capturas/07-movil-durante.png) |
 
 | Estado actualizado en web | Error de inicio de sesión |
 |---|---|
