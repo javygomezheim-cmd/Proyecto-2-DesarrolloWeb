@@ -1,4 +1,3 @@
-
 # Agenda Académica Personal — Aplicación Móvil
 
 Aplicación móvil desarrollada con **React Native y Expo** para el proyecto Agenda Académica Personal. Permite a los estudiantes consultar sus asignaturas, tareas y evaluaciones, revisar su agenda y actualizar el estado y avance de sus actividades.
@@ -10,6 +9,7 @@ La aplicación consume la API REST del proyecto y utiliza autenticación mediant
 - Node.js 22 o superior.
 - npm.
 - Expo Go instalado en un dispositivo Android o iOS, o un emulador compatible.
+- Backend y bases de datos en ejecución (levantados desde la raíz del repositorio con `docker compose up -d`).
 - Acceso a la red donde se encuentra disponible el servidor de la API.
 
 ## 2. Configuración de variables de entorno
@@ -46,7 +46,13 @@ npm install
 
 ## 4. Ejecución
 
-Iniciar Expo con caché limpia:
+Primero, levantar el backend y las bases de datos ejecutando desde la **raíz del repositorio**:
+
+```bash
+docker compose up -d
+```
+
+Luego, desde la carpeta `mobile/`, iniciar Expo con caché limpia:
 
 ```bash
 npx expo start -c
@@ -101,7 +107,7 @@ mobile/
 
 ## 8. Solución de problemas
 
-- **No se pudo conectar con el servidor:** verificar `EXPO_PUBLIC_API_URL`, la IP del computador, la conexión WiFi y el firewall.
+- **No se pudo conectar con el servidor:** verificar que el backend esté activo (`docker compose up -d` en la raíz), `EXPO_PUBLIC_API_URL`, la IP del computador, la conexión WiFi y el firewall.
 - **Los cambios del `.env` no se reflejan:** reiniciar Expo con `npx expo start -c`.
 - **La sesión expiró:** volver a iniciar sesión.
 - **No se puede abrir la aplicación:** comprobar las dependencias con `npx expo-doctor` y ejecutar `npm install`.
