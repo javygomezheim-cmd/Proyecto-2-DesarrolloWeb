@@ -4,6 +4,7 @@ import MainTabs from "./MainTabs";
 import TareaDetalleScreen from "../screens/tareas/TareaDetalleScreen";
 import AsignaturaDetalleScreen from "../screens/asignaturas/AsignaturaDetalleScreen";
 import CrearAsignaturaScreen from "../screens/asignaturas/CrearAsignaturaScreen";
+import CrearTareaScreen from "../screens/tareas/CrearTareaScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +33,12 @@ export default function AppStack() {
         name="CrearAsignatura"
         component={CrearAsignaturaScreen}
         options={{ title: "Nueva asignatura" }}
+      />
+
+      <Stack.Screen
+        name="CrearTarea"
+        component={CrearTareaScreen}
+        options={{ title: "Nueva actividad" }}
       />
     </Stack.Navigator>
   );

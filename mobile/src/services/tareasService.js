@@ -34,3 +34,10 @@ export const cambiarEstado = (id, estado) => actualizar(id, { estado });
 
 // Reemplaza el arreglo completo de subtareas: [{ id, texto, hecha }]
 export const guardarSubtareas = (id, subtareas) => actualizar(id, { subtareas });
+
+// POST /tareas -> Crear una nueva tarea o evaluación
+export const crearTarea = (datos) =>
+  peticion("/tareas", {
+    method: "POST",
+    body: JSON.stringify(datos),
+  });
