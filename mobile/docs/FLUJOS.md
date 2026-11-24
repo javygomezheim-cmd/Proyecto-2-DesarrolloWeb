@@ -7,9 +7,11 @@ Las capturas están en `docs/capturas/`.
 | Inicio de sesión | Validación de correo y contraseña, error del servidor y persistencia de la sesión | `01-login.png` |
 | Inicio | Contadores por estado, actividades vencidas, próximas evaluaciones y tareas de la semana | `02-inicio.png` |
 | Agenda | Actividades agrupadas por día con estado; filtro "Por hacer / Todas" | `03-agenda.png` |
-| Tareas | Lista con filtros por tipo y estado, prioridad y avance | `04-tareas.png` |
+| Tareas | Lista con filtros por tipo y estado, prioridad y avance; botón para crear una actividad | `04-tareas.png` |
 | Detalle de tarea | Cambio de estado (con confirmación al completar) y marcado de subtareas con barra de avance | `05-detalle-tarea.png` |
-| Asignaturas | Lista con cantidad de actividades por hacer y detalle con sus tareas y evaluaciones | `06-asignaturas.png` |
+| Asignaturas | Lista con cantidad de actividades por hacer y detalle con sus tareas y evaluaciones; botón para crear una asignatura | `06-asignaturas.png` |
+| Crear asignatura | Formulario con nombre, profesor, período y color | `09-crear-asignatura.png` |
+| Crear actividad | Formulario con título, descripción, fecha y hora límite, asignatura, tipo y prioridad | `10-crear-actividad.png` |
 | Persistencia compartida | Cambio de estado realizado desde el móvil y reflejado en la aplicación web | `07-web-antes.png`, `07-movil-durante.png`, `07-web-despues.png` |
 | Error de autenticación | Mensaje mostrado al intentar iniciar sesión con credenciales incorrectas | `08-error-login.png` |
 
@@ -38,6 +40,12 @@ Las siguientes capturas evidencian la consistencia de los datos entre ambos clie
 | Tareas | Detalle de tarea | Asignaturas |
 |---|---|---|
 | ![Tareas](capturas/04-tareas.png) | ![Detalle de tarea](capturas/05-detalle-tarea.png) | ![Asignaturas](capturas/06-asignaturas.png) |
+
+### Creación desde el móvil
+
+| Crear asignatura | Crear actividad |
+|---|---|
+| ![Crear asignatura](capturas/09-crear-asignatura.png) | ![Crear actividad](capturas/10-crear-actividad.png) |
 
 ### Persistencia compartida
 

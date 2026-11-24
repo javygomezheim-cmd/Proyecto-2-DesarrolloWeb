@@ -11,6 +11,8 @@ Código: `mobile/src/services/`.
 | GET | `/asignaturas/:id` | `asignaturasService.js` | Detalle de una asignatura | Detalle de asignatura |
 | GET | `/tareas` | `tareasService.js` | Listar tareas y evaluaciones (campo `tipo`) | Inicio, Agenda, Tareas, Asignaturas |
 | GET | `/tareas/:id` | `tareasService.js` | Detalle de una tarea o evaluación | Detalle de tarea |
+| POST | `/asignaturas` | `asignaturasService.js` | Crear una asignatura | Nueva asignatura |
+| POST | `/tareas` | `tareasService.js` | Crear una tarea o evaluación | Nueva actividad |
 | PUT | `/tareas/:id` con `{ estado }` | `tareasService.js` | Actualizar el estado | Detalle de tarea |
 | PUT | `/tareas/:id` con `{ subtareas }` | `tareasService.js` | Actualizar el avance (subtareas hechas) | Detalle de tarea |
 
